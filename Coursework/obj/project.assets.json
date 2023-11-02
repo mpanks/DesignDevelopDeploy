@@ -60,11 +60,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\Coursework\\Coursework.csproj",
+      "projectUniqueName": "C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\Coursework.csproj",
       "projectName": "Coursework",
-      "projectPath": "C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\Coursework\\Coursework.csproj",
+      "projectPath": "C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\Coursework.csproj",
       "packagesPath": "C:\\Users\\matth\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\Coursework\\obj\\",
+      "outputPath": "C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\matth\\AppData\\Roaming\\NuGet\\NuGet.Config",
