@@ -58,6 +58,10 @@ namespace Coursework
             }
             while (true);
         }
+        public static string GetString()
+        {
+            return Console.ReadLine();
+        }
 
     }
     interface MenuItem

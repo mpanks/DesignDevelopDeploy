@@ -7,22 +7,24 @@ namespace Coursework
     {
         static void Main(string[] args)
         {
-            string fileName = @"C:\\Users\\matth\\OneDrive\\Documents\\Comp Sci\\DDD\\Coursework\\Coursework\\Test_File.json";
-            List<person> people = new List<person>();
-            person miranda = new person{
-                firstname="miranda",
-                lastname="evergreen"};
-            people.Add(miranda);
-            //JsonSerializer serializer = new JsonSerializer();
-            using(StreamWriter sw = new StreamWriter(fileName))
-            {
-                //string json = JsonConvert.SerializeObject(people,Formatting.Indented);
-                string json = JsonSerializer.Serialize(people);
-                sw.WriteLine(json);
-                Console.WriteLine(json);
-                //sw.WriteLine(jsonString);
-                //Console.WriteLine(jsonString);
-            }
+            //string fileName = "Test_File.json";
+            //List<person> people = new List<person>();
+            //person miranda = new person{
+            //    firstname="miranda",
+            //    lastname="evergreen"};
+            //people.Add(miranda);
+            ////JsonSerializer serializer = new JsonSerializer();
+            //using(StreamWriter sw = new StreamWriter(fileName))
+            //{
+            //    //string json = JsonConvert.SerializeObject(people,Formatting.Indented);
+            //    string json = JsonSerializer.Serialize(people);
+            //    sw.WriteLine(json);
+            //    Console.WriteLine(json);
+            //    //sw.WriteLine(jsonString);
+            //    //Console.WriteLine(jsonString);
+            //}
+            FileHandler FH = new FileHandler();
+            FH.Select();
         }
         public class person
         {
