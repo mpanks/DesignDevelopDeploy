@@ -1,0 +1,17 @@
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\bin\Debug\net6.0\Coursework.exe
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\bin\Debug\net6.0\Coursework.deps.json
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\bin\Debug\net6.0\Coursework.runtimeconfig.json
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\bin\Debug\net6.0\Coursework.dll
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\bin\Debug\net6.0\Coursework.pdb
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\bin\Debug\net6.0\Newtonsoft.Json.dll
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.csproj.AssemblyReference.cache
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.AssemblyInfoInputs.cache
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.AssemblyInfo.cs
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.csproj.CoreCompileInputs.cache
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.csproj.CopyComplete
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.dll
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\refint\Coursework.dll
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.pdb
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.genruntimeconfig.cache
+C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\ref\Coursework.dll
