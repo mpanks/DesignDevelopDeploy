@@ -30,9 +30,6 @@ namespace Coursework
         }
         public void Select()
         {
-            //step one - tie noose
-            //step two - stand on stool
-            //step three - hang the curtains
             Functions.OutputMessage("Please enter LoginID");
             string _loginID = Functions.GetString();
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
@@ -41,8 +38,8 @@ namespace Coursework
                 var cmd = connection.CreateCommand();
                 cmd.CommandText = @"SELECT * FROM UserLogin WHERE loginID=$ID;";
                 cmd.Parameters.AddWithValue("$ID", _loginID);
-                var password = "";
-
+                string password = "";
+                string salt = "";
                 Functions.OutputMessage("Please enter password");
                 _password = Functions.GetString();
 
@@ -51,14 +48,15 @@ namespace Coursework
                     while (reader.Read())
                     {
                         password = reader.GetString(1);
+                        salt = reader.GetString(2);
                     }
                 }
-                if(_password == password)
+                if (_password+salt == password)
                 {
-                    //Move to users home screen
+                    //TODO Move to users home screen
                     Console.WriteLine("Hello");
                 }
-                else { Functions.OutputMessage("Password incorrect, please try again"); }
+                else { Functions.OutputMessage($"Password incorrect, please try again"); }
                 connection.Close();
             }
             Console.WriteLine("Really hope that worked");
