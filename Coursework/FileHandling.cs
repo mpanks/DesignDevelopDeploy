@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Microsoft.Data.Sqlite;
 
 namespace Coursework
 {
@@ -20,11 +20,6 @@ namespace Coursework
             _menuItems.Add(new ExitMenuItem(this));
         }
     }
-    class LoginInfo
-    {
-        string _username { get; set; }
-        string _password { get; set; }
-    }
     public class Login : MenuItem
     {
         public string _loginID { get; private set; }
@@ -35,12 +30,41 @@ namespace Coursework
         }
         public void Select()
         {
+            //step one - tie noose
+            //step two - stand on stool
+            //step three - hang the curtains
+            Functions.OutputMessage("Please enter LoginID");
+            string _loginID = Functions.GetString();
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = @"SELECT * FROM UserLogin WHERE loginID=$ID;";
+                cmd.Parameters.AddWithValue("$ID", _loginID);
+                var password = "";
 
+                Functions.OutputMessage("Please enter password");
+                _password = Functions.GetString();
 
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        password = reader.GetString(1);
+                    }
+                }
+                if(_password == password)
+                {
+                    //Move to users home screen
+                    Console.WriteLine("Hello");
+                }
+                else { Functions.OutputMessage("Password incorrect, please try again"); }
+                connection.Close();
+            }
+            Console.WriteLine("Really hope that worked");
 
             //string fileName = "LoginInfo.json";
-            //Functions.OutputMessage("Please enter LoginID");
-            //string _loginID = Functions.GetString();
+
             //List<LoginInfo> lines;
             //using (StreamReader streamReader = new StreamReader(fileName))
             //{
