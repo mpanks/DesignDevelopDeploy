@@ -15,10 +15,10 @@ namespace Coursework
     }
     class Hashing
     {
-        public string _salt { get; private set; }
-        public string _hash { get; private set; }
+        internal string _salt { get; private set; }
+        internal string _hash { get; private set; }
         public Hashing() { }
-        public string GenerateSalt()
+        private string GenerateSalt()
         {
             var rng = RandomNumberGenerator.Create();
             var buffer = new byte[10];
@@ -26,7 +26,7 @@ namespace Coursework
 
             return _salt = Convert.ToBase64String(buffer);
         }
-        public string GenerateHash(string password, string salt)
+        private string GenerateHash(string password, string salt)
         {
             using (SHA256 mySha256 = SHA256.Create())
             {
@@ -34,25 +34,14 @@ namespace Coursework
                 byte[] saltBytes = encoder.GetBytes(salt);
                 byte[] passwordBytes = encoder.GetBytes(password);
                 byte[] hash = mySha256.ComputeHash(encoder.GetBytes(password + salt));
-                Console.WriteLine(password + salt);
-                //string hashString = string.Empty;
-                //for (int i = 0; i < hash.Length; i++)
-                //{
-                //    hashString += hash[i];
-                //}
-                //Console.WriteLine(hashString.ToString());
                 return _hash = Convert.ToBase64String(hash);
             }
         }
         public bool checkPassword(string inputPassword, string storedHash,string salt)
         {
             string inputHash = GenerateHash(inputPassword, salt);
-            Console.WriteLine("InputHash: " + inputHash);
-            Console.WriteLine("StoredHash: " + storedHash);
             if (storedHash == inputHash)
             {
-                //TODO Remove outputs
-
                 return true;
             }
             else
@@ -69,12 +58,17 @@ namespace Coursework
             _menuItems.Add(new Login());
             _menuItems.Add(new ExitMenuItem(this));
         }
+        public override string MenuText()
+        {
+            return "Main Menu";
+        }
     }
 
-    public class Login : MenuItem
+    class Login : MenuItem
     {
         public string _loginID { get; private set; }
         internal string _password { get; private set; }
+
         public string MenuText()
         {
             return "Login";
@@ -103,8 +97,6 @@ namespace Coursework
                     }
                 }
                 Hashing hashing = new Hashing();
-                Console.WriteLine("InputtedPassword: " + _password);
-                Console.WriteLine("Stored Salt: " + salt);
                 //salt = hashing.GenerateSalt();
                 //_password = hashing.GenerateHash(_password, salt);
                 //cmd.CommandText = $"UPDATE UserLogin " +
@@ -117,38 +109,14 @@ namespace Coursework
                 if (hashing.checkPassword(_password,hash,salt))
                 {
                     //TODO Move to users home screen
-                    Console.WriteLine("Hello");
+                    userHomeScreen uhs = new userHomeScreen(_loginID);
+                    uhs.Select();
                 }
                 else
                 {
                     Functions.OutputMessage($"Password incorrect, please try again"); connection.Close();
                 }
             }
-            Console.WriteLine("Really hope that worked");
-
-            //string fileName = "LoginInfo.json";
-
-            //List<LoginInfo> lines;
-            //using (StreamReader streamReader = new StreamReader(fileName))
-            //{
-            //    string json = streamReader.ReadToEnd();
-            //    lines = JsonConvert.DeserializeObject<List<LoginInfo>>(json);
-            //    Console.WriteLine(lines);
-            //}
-            //if (lines[0].Contains(_loginID))
-            //{
-            //    int index = lines.IndexOf(_loginID);
-            //    string passwordInput = Functions.GetString();
-            //    _password = lines[index].ToString();
-            //    if (_password == passwordInput)
-            //    {
-            //        Console.WriteLine("Im in");
-            //    }
-            //}
-            //else
-            //{
-            //    Functions.OutputMessage($"{_loginID} is not found");
-            //}
         }
     }
 }

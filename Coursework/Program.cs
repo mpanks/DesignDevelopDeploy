@@ -1,4 +1,6 @@
 ﻿//using Newtonsoft.Json;
+using Microsoft.Data.Sqlite;
+using System.Net.WebSockets;
 using System.Text.Json;
 
 namespace Coursework
@@ -23,6 +25,27 @@ namespace Coursework
             //    //sw.WriteLine(jsonString);
             //    //Console.WriteLine(jsonString);
             //}
+
+            //using(var sqlConnection = new SqliteConnection("Data Source = DDD_CW.db"))
+            //{
+            //    sqlConnection.Open();
+            //    var cmd = sqlConnection.CreateCommand();
+            //    //cmd.CommandText = "Create Table UserInfo(LoginID TEXT NOT NULL, " +
+            //    //    "FirstName TEXT, " +
+            //    //    "LastName TEXT, " +
+            //    //    "PRIMARY KEY(LoginID)," +
+            //    //    "FOREIGN KEY(LoginID)" +
+            //    //    " REFERENCES UserLogin(LoginID)" +
+            //    //    " ON UPDATE CASCADE" +
+            //    //    " ON DELETE CASCADE);";
+            //    cmd.CommandText = "ALTER TABLE UserInfo ADD COLUMN Title TEXT;" +
+            //        "ALTER TABLE UserInfo ADD COLUMN AccessLevel INTEGER; " +
+            //        "INSERT INTO UserInfo VALUES('717402', 'Matthew', 'Panks', 'Mr', 1)";
+            //    cmd.ExecuteNonQuery();
+            //    sqlConnection.Close();
+            //    Console.WriteLine("Created table");
+            //}
+
             FileHandler FH = new FileHandler();
             FH.Select();
         }
