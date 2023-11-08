@@ -16,7 +16,7 @@ namespace Coursework
         protected  ConsoleMenu menu { get { return this; } private set { } }
         protected int accLvl {get; private set;}
         protected string _loginID { get; private set;}
-        public userHomeScreen( string pLoginID = "")
+        public userHomeScreen( string pLoginID)
         {
             _loginID = pLoginID;
             menu = this;
@@ -56,7 +56,7 @@ namespace Coursework
                         shs.Select();
                         break;
                     case 2:
-                        PSHomeScreen pshs = new PSHomeScreen();
+                        PSHomeScreen pshs = new PSHomeScreen(_loginID);
                         pshs.Select();
                         break;
                     case 3:
@@ -75,15 +75,18 @@ namespace Coursework
     }
     class StudentHomeScreen : userHomeScreen, MenuItem
     { 
-        private string pLoginID;
-        public StudentHomeScreen(string loginID)
+        private string _loginID;
+        public StudentHomeScreen(string loginID) : base(loginID)
         {
-            pLoginID = loginID;
+            _loginID = loginID;
         }
         public override void CreateMenu()
         {
             _menuItems.Clear();
             //TODO Add menu options for Student home screen
+            _menuItems.Add(new AddProgressReport(_loginID));
+            //TODO Implement reviewing prev prog reports
+            //TODO Implement requesting a meeting
             _menuItems.Add(new ExitMenuItem(menu));
         }
         public override string MenuText()
@@ -99,6 +102,11 @@ namespace Coursework
     }
     class PSHomeScreen : userHomeScreen, MenuItem
     {
+        internal string _loginID { get; private set; }
+        public PSHomeScreen (string loginID): base(loginID)
+        {
+            _loginID = loginID;
+        }
         public override void CreateMenu()
         {
             _menuItems.Clear();
@@ -112,6 +120,7 @@ namespace Coursework
         public override void Select()
         {
             base.Select();
+            //TODO Implement notifying user of new meetings
             Console.WriteLine("Welcome to PS homescreen");
         }
     }

@@ -26,24 +26,27 @@ namespace Coursework
             //    //Console.WriteLine(jsonString);
             //}
 
-            //using(var sqlConnection = new SqliteConnection("Data Source = DDD_CW.db"))
+            //using (var sqlConnection = new SqliteConnection("Data Source = DDD_CW.db"))
             //{
             //    sqlConnection.Open();
             //    var cmd = sqlConnection.CreateCommand();
-            //    //cmd.CommandText = "Create Table UserInfo(LoginID TEXT NOT NULL, " +
-            //    //    "FirstName TEXT, " +
+
+            //    //cmd.CommandText = "Create Table ProgressReports(LoginID TEXT NOT NULL, " +
+            //    //    "ReportID INTEGER PRIMARY KEY AUTOINCREMENT, " +
             //    //    "LastName TEXT, " +
-            //    //    "PRIMARY KEY(LoginID)," +
+            //    //    "" +
             //    //    "FOREIGN KEY(LoginID)" +
             //    //    " REFERENCES UserLogin(LoginID)" +
             //    //    " ON UPDATE CASCADE" +
             //    //    " ON DELETE CASCADE);";
-            //    cmd.CommandText = "ALTER TABLE UserInfo ADD COLUMN Title TEXT;" +
-            //        "ALTER TABLE UserInfo ADD COLUMN AccessLevel INTEGER; " +
-            //        "INSERT INTO UserInfo VALUES('717402', 'Matthew', 'Panks', 'Mr', 1)";
-            //    cmd.ExecuteNonQuery();
-            //    sqlConnection.Close();
-            //    Console.WriteLine("Created table");
+
+            //    //cmd.CommandText = //"ALTER TABLE ProgressReports Rename COLUMN LastName TO Report;" +
+            //    //                  //"ALTER TABLE ProgressReports ADD COLUMN ConfidenceLevel INTEGER; " +
+            //    //                  //"INSERT INTO ProgressReports(ConfidenceLevel) VALUES(5), WHERE (LoginID = '717402');";
+            //    //    //"UPDATE ProgressReports SET ConfidenceLevel = 5 WHERE LoginID='717402';";
+            //    //cmd.ExecuteNonQuery();
+            //    //sqlConnection.Close();
+            //    //Console.WriteLine("Created table");
             //}
 
             FileHandler FH = new FileHandler();
