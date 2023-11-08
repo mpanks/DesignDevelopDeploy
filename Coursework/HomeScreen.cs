@@ -85,7 +85,7 @@ namespace Coursework
             _menuItems.Clear();
             //TODO Add menu options for Student home screen
             _menuItems.Add(new AddProgressReport(_loginID));
-            //TODO Implement reviewing prev prog reports
+            _menuItems.Add(new ViewProgressReports(_loginID));
             //TODO Implement requesting a meeting
             _menuItems.Add(new ExitMenuItem(menu));
         }

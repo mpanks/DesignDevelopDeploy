@@ -6,7 +6,6 @@ using System.Runtime.Intrinsics.Arm;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
-using System.Security.Cryptography;
 
 namespace Coursework
 {

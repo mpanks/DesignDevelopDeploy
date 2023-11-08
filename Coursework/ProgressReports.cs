@@ -46,4 +46,35 @@ namespace Coursework
             }
         }
     }
+    class ViewProgressReports : MenuItem
+    {
+        internal string _loginID { get; private set; }
+        public ViewProgressReports(string loginID)
+        {
+            _loginID = loginID;
+        }
+        public string MenuText()
+        {
+            return "View Progress Reports";
+        }
+        public void Select()
+        {
+            //TODO Implement view progress reports function
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (LoginID = @loginID);";//Add SQL Query
+                cmd.Parameters.AddWithValue("@loginID", _loginID);
+                cmd.ExecuteNonQuery ();
+                using (var sr = cmd.ExecuteReader())
+                {
+                    while(sr.Read())
+                    {
+                        Functions.OutputMessage($"{sr.GetName(0)}: {sr.GetString(0)}\n{sr.GetName(1)}: {sr.GetString(1)}\n");
+                    }
+                }
+            }
+        }
+    }
 }
