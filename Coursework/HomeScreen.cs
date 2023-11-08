@@ -13,11 +13,13 @@ namespace Coursework
     }
     class userHomeScreen : ConsoleMenu
     {
+        protected  ConsoleMenu menu { get { return this; } private set { } }
         protected int accLvl {get; private set;}
         protected string _loginID { get; private set;}
-        public userHomeScreen(string pLoginID = "")
+        public userHomeScreen( string pLoginID = "")
         {
             _loginID = pLoginID;
+            menu = this;
         }
         public override void CreateMenu()
         {
@@ -82,7 +84,7 @@ namespace Coursework
         {
             _menuItems.Clear();
             //TODO Add menu options for Student home screen
-            _menuItems.Add(new ExitMenuItem(this));
+            _menuItems.Add(new ExitMenuItem(menu));
         }
         public override string MenuText()
         {
@@ -90,7 +92,7 @@ namespace Coursework
         }
         public override void Select()
         {
-            CreateMenu();
+            //CreateMenu();
             base.Select();
             Console.WriteLine("Student Home Page");
         }

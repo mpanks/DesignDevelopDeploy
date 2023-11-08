@@ -104,23 +104,6 @@ namespace Coursework
             return "Console Menu";
         }
     }
-    class SkipMenuItem : MenuItem
-    {
-        protected ConsoleMenu _menu;
-        public SkipMenuItem(ConsoleMenu parentItem)
-        {
-            _menu = parentItem;
-        }
-        public virtual string MenuText()
-        {
-
-            return string.Empty;
-        }
-        public virtual void Select()
-        {
-            _menu.IsActive = true;
-        }
-    }
     class ExitMenuItem : MenuItem
     {
         protected ConsoleMenu _menu;
