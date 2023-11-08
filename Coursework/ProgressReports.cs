@@ -49,9 +49,11 @@ namespace Coursework
     class ViewProgressReports : MenuItem
     {
         internal string _loginID { get; private set; }
-        public ViewProgressReports(string loginID)
+        private int _AccessLvl;
+        public ViewProgressReports(string loginID, int AccessLvl)
         {
             _loginID = loginID;
+            _AccessLvl = AccessLvl;
         }
         public string MenuText()
         {
@@ -64,12 +66,21 @@ namespace Coursework
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (LoginID = @loginID);";//Add SQL Query
-                cmd.Parameters.AddWithValue("@loginID", _loginID);
-                cmd.ExecuteNonQuery ();
+                switch (_AccessLvl)
+                {
+                    case 1:
+                        cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (LoginID = @loginID);";
+                        cmd.Parameters.AddWithValue("@loginID", _loginID);
+                        break;
+                        case 2:
+                        cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (PSID = @login)";
+                        cmd.Parameters.AddWithValue("@login", _loginID);
+                        break;
+                }
+                cmd.ExecuteNonQuery();
                 using (var sr = cmd.ExecuteReader())
                 {
-                    while(sr.Read())
+                    while (sr.Read())
                     {
                         Functions.OutputMessage($"{sr.GetName(0)}: {sr.GetString(0)}\n{sr.GetName(1)}: {sr.GetString(1)}\n");
                     }

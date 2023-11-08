@@ -39,14 +39,16 @@ namespace Coursework
             //    //    " REFERENCES UserLogin(LoginID)" +
             //    //    " ON UPDATE CASCADE" +
             //    //    " ON DELETE CASCADE);";
-
-            //    //cmd.CommandText = //"ALTER TABLE ProgressReports Rename COLUMN LastName TO Report;" +
-            //    //                  //"ALTER TABLE ProgressReports ADD COLUMN ConfidenceLevel INTEGER; " +
-            //    //                  //"INSERT INTO ProgressReports(ConfidenceLevel) VALUES(5), WHERE (LoginID = '717402');";
-            //    //    //"UPDATE ProgressReports SET ConfidenceLevel = 5 WHERE LoginID='717402';";
-            //    //cmd.ExecuteNonQuery();
-            //    //sqlConnection.Close();
-            //    //Console.WriteLine("Created table");
+            //    //Hashing hash = new Hashing();
+            //    //string salt = hash.GenerateSalt();
+            //    //string password = hash.GenerateHash("password", salt);
+            //    cmd.CommandText = //"ALTER TABLE ProgressReports Rename COLUMN LastName TO Report;" +
+            //                      //"ALTER TABLE ProgressReports ADD COLUMN PSID INTEGER; " +
+            //    $"INSERT INTO UserInfo Values ('1','Alex','Masterman','Mr',2); ";
+            //    //"UPDATE ProgressReports SET PSID = 1 WHERE LoginID='717402';";
+            //    cmd.ExecuteNonQuery();
+            //    sqlConnection.Close();
+            //    Console.WriteLine("Created table");
             //}
 
             FileHandler FH = new FileHandler();

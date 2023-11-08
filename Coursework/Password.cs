@@ -12,10 +12,10 @@ namespace Coursework
     }
     class Hashing
     {
-        internal string _salt { get; private set; }
-        internal string _hash { get; private set; }
+        public string _salt { get; private set; }
+        public string _hash { get; private set; }
         public Hashing() { }
-        private string GenerateSalt()
+        public string GenerateSalt()
         {
             var rng = RandomNumberGenerator.Create();
             var buffer = new byte[10];
@@ -23,7 +23,7 @@ namespace Coursework
 
             return _salt = Convert.ToBase64String(buffer);
         }
-        private string GenerateHash(string password, string salt)
+        public string GenerateHash(string password, string salt)
         {
             using (SHA256 mySha256 = SHA256.Create())
             {
