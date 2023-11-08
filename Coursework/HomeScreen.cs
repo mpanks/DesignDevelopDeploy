@@ -19,10 +19,10 @@ namespace Coursework
         public userHomeScreen( string pLoginID)
         {
             _loginID = pLoginID;
-            menu = this;
         }
         public override void CreateMenu()
         {
+            this.IsActive = false;
             this.SelectMenu();
         }
         public override string MenuText()
@@ -87,7 +87,7 @@ namespace Coursework
             _menuItems.Add(new AddProgressReport(_loginID));
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
             //TODO Implement requesting a meeting
-            _menuItems.Add(new ExitMenuItem(menu)); 
+            _menuItems.Add(new ExitMenuItem(this)); 
             //TODO Get Homescreen exit options working
             //Might need to get a new menu item to escape both the previous class instance as well as this one, at the same time
         }
