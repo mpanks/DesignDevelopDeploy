@@ -113,7 +113,7 @@ namespace Coursework
             //TODO Add menu items for PS home screen
             _menuItems.Add(new ViewProgressReports(_loginID, 2));
             _menuItems.Add(new ViewMeetings(2,_loginID));
-            //TODO Allow PS to view specific students reports
+            _menuItems.Add(new ViewMeetings(2, _loginID, true));
             //TODO allow PS To book meetings with students
             _menuItems.Add(new ExitMenuItem(this));
         }

@@ -10,7 +10,7 @@ namespace Coursework
     internal class Meetings
     {
     }
-    class CreateMeeting: MenuItem
+    class CreateMeeting : MenuItem
     {
         private int _accessLevel;
         private string _loginID;
@@ -32,14 +32,20 @@ namespace Coursework
     {
         private int _accessLevel;
         private string _loginID;
-        public ViewMeetings(int accessLevel, string loginID)
+        private bool _select;
+        public ViewMeetings(int accessLevel, string loginID, bool selectStudent = false)
         {
             _accessLevel = accessLevel;
             _loginID = loginID;
+            _select = selectStudent;
         }
         public string MenuText()
         {
-            return "View meetings";
+            if (!_select)
+            {
+                return "View meetings";
+            }
+            else { return "Select Student Meetings"; }
         }
         public void Select()
         {
@@ -47,28 +53,36 @@ namespace Coursework
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
+                cmd.CommandText = "SELECT firstName, lastName, Title, location, time " +
+                            "FROM studentMeeting, UserInfo ";
                 switch (_accessLevel)
                 {
                     case 1: //TODO Add date to DB for meetings
-                        cmd.CommandText = "SELECT firstName, lastName, Title, location, time " +
-                            "FROM studentMeeting, UserInfo " +
-                            "WHERE studentID = @loginID " +
+                        cmd.CommandText += "WHERE studentID = @loginID " +
                             "AND PSID = UserInfo.loginID;";
-                        cmd.Parameters.AddWithValue("@loginID", _loginID);
                         break;
                     case 2:
-                        cmd.CommandText = "SELECT firstname, lastname, title, location, time " +
-                            "FROM studentMeeting, userInfo " +
-                            "WHERE PSID = @loginID " +
-                            "AND studentID = UserInfo.loginID;";
-                        cmd.Parameters.AddWithValue("@loginID", _loginID);
+                        cmd.CommandText += "WHERE PSID = @loginID AND studentID = UserInfo.loginID;";
+                        if (_select)
+                        {
+                            cmd.CommandText += "AND studentID = (SELECT LoginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = 1);";
+                            Functions.OutputMessage("Please input students firstname");
+                            string fname = Functions.GetString();
+
+                            Functions.OutputMessage("Please input students last name");
+                            string lname = Functions.GetString();
+
+                            cmd.Parameters.AddWithValue("@fname", fname);
+                            cmd.Parameters.AddWithValue("@lname", lname);
+                        }
                         break;
                     case 3:
                         break;
                     default:
                         break;
                 }
-                using(var sr  = cmd.ExecuteReader())
+                cmd.Parameters.AddWithValue("@loginID", _loginID);
+                using (var sr = cmd.ExecuteReader())
                 {
                     while (sr.Read())
                     {
