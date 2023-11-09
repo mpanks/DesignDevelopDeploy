@@ -10,6 +10,62 @@ namespace Coursework
     internal class Meetings
     {
     }
+    class MeetingNotification : MenuItem
+    {
+        private string _loginID;
+        private int _accLvl;
+        public MeetingNotification(string loginID, int AccessLevel)
+        {
+            _loginID = loginID;
+            _accLvl = AccessLevel;
+        }
+        public string MenuText()
+        {
+            return "Meeting Notifications";
+        }
+        public void Select()
+        {
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT title, firstname, lastname, time, location " +
+                        "FROM userinfo, studentMeeting " +
+                        "WHERE userInfo.loginID = @loginID " +
+                        //"AND userInfo.loginID = studentMeeting.StudentID " +
+                        //"AND userInfo.accessLevel = @AccLvl " +
+                        "AND confirmed = 0;";
+                    cmd.Parameters.AddWithValue("@loginID", _loginID);
+                    //switch(_accLvl)
+                    //{
+                    //    case 1:
+                    //        cmd.Parameters.AddWithValue("@AccLvl", 2);
+                    //        break;
+                    //    case 2:
+                    //        cmd.Parameters.AddWithValue("@AccLevel", 1);
+                    //        break;
+                    //    default:
+                    //        break;
+                    //}
+                    using (var sr = cmd.ExecuteReader())
+                    {
+                        while (sr.Read())
+                        {
+                            Functions.OutputMessage($"You have an unviewed meeting with {sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}:" +
+                                $"\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}");
+                        }
+                    }
+                }
+
+                var update = connection.CreateCommand();
+                update.CommandText = "UPDATE studentMeeting SET confirmed = 1 WHERE studentID = @loginID;";
+                update.Parameters.AddWithValue("@loginID", _loginID);
+                update.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+    }
     class CreateMeeting : MenuItem
     {
         private int _accessLevel;
@@ -69,7 +125,7 @@ namespace Coursework
                     default:
                         break;
                 }
-                if (cmd.Parameters.Count>3)
+                if (cmd.Parameters.Count > 3)
                 {
                     cmd.Parameters.AddWithValue("@location", _location);
                     cmd.Parameters.AddWithValue("@time", _time);
@@ -88,7 +144,7 @@ namespace Coursework
                 }
             }
         }
-        private void GetCurrentMeetings(List<string> times,string studentID,string PSID)
+        private void GetCurrentMeetings(List<string> times, string studentID, string PSID)
         {
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
@@ -97,7 +153,7 @@ namespace Coursework
                 cmd.CommandText = "SELECT time FROM studentMeeting WHERE studentID = @studentID AND PSID = @PSID;";
                 cmd.Parameters.AddWithValue("@studentID", studentID);
                 cmd.Parameters.AddWithValue("@PSID", PSID);
-                using(var sr = cmd.ExecuteReader())
+                using (var sr = cmd.ExecuteReader())
                 {
                     while (sr.Read())
                     {
@@ -136,7 +192,7 @@ namespace Coursework
                     case 2:
                         accessLvl = 1;
                         break;
-                    default: 
+                    default:
                         break;
                 }
                 cmd.Parameters.AddWithValue("@accLvl", accessLvl);

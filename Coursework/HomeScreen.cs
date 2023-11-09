@@ -49,6 +49,9 @@ namespace Coursework
                         Console.WriteLine(accLvl);
                     }
                 }
+                MeetingNotification mn = new MeetingNotification(_loginID, accLvl);
+                mn.Select();
+
                 switch (accLvl)
                 {
                     case 1:
@@ -115,6 +118,7 @@ namespace Coursework
             _menuItems.Add(new ViewMeetings(2,_loginID));
             _menuItems.Add(new ViewMeetings(2, _loginID, true));
             _menuItems.Add(new CreateMeeting(2,_loginID));
+            //TODO allow PSs to manage their meetings, cancel meetings and reschedule/change location
             _menuItems.Add(new ExitMenuItem(this));
         }
         public override string MenuText()

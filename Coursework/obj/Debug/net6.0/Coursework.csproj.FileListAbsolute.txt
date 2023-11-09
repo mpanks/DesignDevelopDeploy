@@ -15,7 +15,6 @@ C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\n
 C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.pdb
 C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\Coursework.genruntimeconfig.cache
 C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\Coursework\obj\Debug\net6.0\ref\Coursework.dll
-C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\bin\Debug\net6.0\Test_File.json
 C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\bin\Debug\net6.0\Coursework.exe
 C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\bin\Debug\net6.0\Coursework.deps.json
 C:\Users\matth\OneDrive\Documents\Comp Sci\DDD\Coursework\bin\Debug\net6.0\Coursework.runtimeconfig.json

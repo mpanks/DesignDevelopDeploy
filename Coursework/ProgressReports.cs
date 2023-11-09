@@ -61,7 +61,6 @@ namespace Coursework
         }
         public void Select()
         {
-            //TODO Implement view progress reports function
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
