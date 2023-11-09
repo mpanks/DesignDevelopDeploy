@@ -28,7 +28,8 @@ namespace Coursework
         }
         public void Select()
         {
-            //TODO check both parties are available at the given time
+            //TODO check if room is available at that time
+            //"Teams" isnt a "room" and can have overlapping times IF both parties are free at that time
             //Create list of times that are taken, search list for the selected time
             List<string> times = new List<string>();
             GetMeetingDetails(_accessLevel);

@@ -14,10 +14,4 @@
     <PackageReference Include="SQLitePCLRaw.core" Version="2.1.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Test_File.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
