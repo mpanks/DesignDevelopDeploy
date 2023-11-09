@@ -87,7 +87,7 @@ namespace Coursework
             _menuItems.Add(new AddProgressReport(_loginID));
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
             _menuItems.Add(new ViewMeetings(1, _loginID));
-            //TODO Implement requesting a meeting
+            _menuItems.Add(new CreateMeeting(1, _loginID));
             _menuItems.Add(new ExitMenuItem(this)); 
         }
         public override string MenuText()
@@ -114,7 +114,7 @@ namespace Coursework
             _menuItems.Add(new ViewProgressReports(_loginID, 2));
             _menuItems.Add(new ViewMeetings(2,_loginID));
             _menuItems.Add(new ViewMeetings(2, _loginID, true));
-            //TODO allow PS To book meetings with students
+            _menuItems.Add(new CreateMeeting(2,_loginID));
             _menuItems.Add(new ExitMenuItem(this));
         }
         public override string MenuText()

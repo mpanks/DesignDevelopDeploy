@@ -14,6 +14,9 @@ namespace Coursework
     {
         private int _accessLevel;
         private string _loginID;
+        private string _location;
+        private string _time;
+        private string _otherID;
         public CreateMeeting(int accLvl, string loginID)
         {
             _accessLevel = accLvl;
@@ -25,7 +28,74 @@ namespace Coursework
         }
         public void Select()
         {
-            //TODO Implement create meeting 
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "INSERT INTO studentMeeting(studentID, PSID, location, time) VALUES(@studentID, @PSID, @location, @time);";
+                switch (_accessLevel)
+                {
+                    case 1:
+                        //Student creates meeting
+                        GetMeetingDetails(2);
+
+                        cmd.Parameters.AddWithValue("@studentID", _loginID);
+                        cmd.Parameters.AddWithValue("@PSID", _otherID);
+                        break;
+                    case 2:
+                        //PS creates meeting
+                        GetMeetingDetails(1);
+
+                        cmd.Parameters.AddWithValue("@studentID", _otherID);
+                        cmd.Parameters.AddWithValue("@PSID", _loginID);
+                        break;
+                    default:
+                        break;
+                }
+                cmd.Parameters.AddWithValue("@location", _location);
+                cmd.Parameters.AddWithValue("@time", _time);
+                if(cmd.ExecuteNonQuery()>0)
+                {
+                    Functions.OutputMessage($"Meeting created for {_time} in {_location}");
+                }
+                else
+                {
+                    Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
+                }
+            }
+        }
+        private void GetMeetingDetails(int accLvl)
+        {
+            Functions.OutputMessage("Please input other parties first name");
+            string fname = Functions.GetString();
+
+            Functions.OutputMessage("Please input other parties last name");
+            string lname = Functions.GetString();
+
+            Functions.OutputMessage("Please choose a location for the meeting (choose \"Teams\" for \"virtual\" meetings)");
+            _location = Functions.GetString();
+
+            Functions.OutputMessage("Please choose a time for the meeting (HH:MM)");
+            _time = Functions.GetString();
+
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = @accLvl;";
+                cmd.Parameters.AddWithValue("@fname", fname);
+                cmd.Parameters.AddWithValue("@lname", lname);
+                cmd.Parameters.AddWithValue("@accLvl", accLvl);
+
+                using (var sr = cmd.ExecuteReader())
+                {
+                    while (sr.Read())
+                    {
+                        _otherID = sr.GetString(0);
+                    }
+                }
+                connection.Close();
+            }
         }
     }
     class ViewMeetings : MenuItem
