@@ -28,6 +28,10 @@ namespace Coursework
         }
         public void Select()
         {
+            //TODO check both parties are available at the given time
+            //Create list of times that are taken, search list for the selected time
+            List<string> times = new List<string>();
+            GetMeetingDetails(_accessLevel);
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
@@ -37,30 +41,67 @@ namespace Coursework
                 {
                     case 1:
                         //Student creates meeting
-                        GetMeetingDetails(2);
-
-                        cmd.Parameters.AddWithValue("@studentID", _loginID);
-                        cmd.Parameters.AddWithValue("@PSID", _otherID);
+                        GetCurrentMeetings(times, _loginID, _otherID);
+                        if (!times.Contains(_time))
+                        {
+                            cmd.Parameters.AddWithValue("@studentID", _loginID);
+                            cmd.Parameters.AddWithValue("@PSID", _otherID);
+                        }
+                        else
+                        {
+                            Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
+                        }
                         break;
                     case 2:
                         //PS creates meeting
-                        GetMeetingDetails(1);
-
-                        cmd.Parameters.AddWithValue("@studentID", _otherID);
-                        cmd.Parameters.AddWithValue("@PSID", _loginID);
+                        GetCurrentMeetings(times, _otherID, _loginID);
+                        if (!times.Contains(_time))
+                        {
+                            cmd.Parameters.AddWithValue("@studentID", _otherID);
+                            cmd.Parameters.AddWithValue("@PSID", _loginID);
+                        }
+                        else
+                        {
+                            Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
+                        }
                         break;
                     default:
                         break;
                 }
-                cmd.Parameters.AddWithValue("@location", _location);
-                cmd.Parameters.AddWithValue("@time", _time);
-                if(cmd.ExecuteNonQuery()>0)
+                if (cmd.Parameters.Count>3)
                 {
-                    Functions.OutputMessage($"Meeting created for {_time} in {_location}");
+                    cmd.Parameters.AddWithValue("@location", _location);
+                    cmd.Parameters.AddWithValue("@time", _time);
+                    if (cmd.ExecuteNonQuery() > 0)
+                    {
+                        Functions.OutputMessage($"Meeting created for {_time} in {_location}");
+                    }
+                    else
+                    {
+                        Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
+                    }
                 }
                 else
                 {
                     Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
+                }
+            }
+        }
+        private void GetCurrentMeetings(List<string> times,string studentID,string PSID)
+        {
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "SELECT time FROM studentMeeting WHERE studentID = @studentID AND PSID = @PSID;";
+                cmd.Parameters.AddWithValue("@studentID", studentID);
+                cmd.Parameters.AddWithValue("@PSID", PSID);
+                using(var sr = cmd.ExecuteReader())
+                {
+                    while (sr.Read())
+                    {
+                        times.Add(sr.GetString(0));
+                    }
                 }
             }
         }
@@ -85,7 +126,19 @@ namespace Coursework
                 cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = @accLvl;";
                 cmd.Parameters.AddWithValue("@fname", fname);
                 cmd.Parameters.AddWithValue("@lname", lname);
-                cmd.Parameters.AddWithValue("@accLvl", accLvl);
+                int accessLvl = 0;
+                switch (accLvl)
+                {
+                    case 1:
+                        accessLvl = 2;
+                        break;
+                    case 2:
+                        accessLvl = 1;
+                        break;
+                    default: 
+                        break;
+                }
+                cmd.Parameters.AddWithValue("@accLvl", accessLvl);
 
                 using (var sr = cmd.ExecuteReader())
                 {

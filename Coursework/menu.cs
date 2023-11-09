@@ -14,7 +14,7 @@ namespace Coursework
 
         public static void OutputMessage(string pMessage)
         {
-            Console.WriteLine(pMessage);
+            Console.WriteLine(pMessage + "\n");
         }
         public static int GetIntegerInRange(float pMin, float pMax, string pMessage)
         {
