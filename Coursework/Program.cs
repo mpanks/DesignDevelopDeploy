@@ -31,10 +31,10 @@ namespace Coursework
                 //Hashing hash = new Hashing();
                 //string salt = hash.GenerateSalt();
                 //string password = hash.GenerateHash("password", salt);
-                cmd.CommandText = //"ALTER TABLE ProgressReports Rename COLUMN LastName TO Report;" +
-                                  //"ALTER TABLE studentMeeting ADD COLUMN confirmed INTEGER; ";
+                cmd.CommandText = //"ALTER TABLE studentMeeting Rename COLUMN confirmed TO studentConfirmed;";
+                                  //"ALTER TABLE studentMeeting ADD COLUMN PSconfirmed INTEGER; ";
                                   //$"INSERT INTO studentMeeting(studentID,PSID,location,time) Values ('717402','1','Teams','10:30'); ";
-                                  "UPDATE studentMeeting SET confirmed = 0 WHERE studentID='717402';";
+                                  "UPDATE studentMeeting SET studentConfirmed = 0, PSconfirmed = 0 WHERE studentID='717402';";
                 cmd.ExecuteNonQuery();
                 sqlConnection.Close();
                 Console.WriteLine("Created table");
@@ -42,18 +42,6 @@ namespace Coursework
 
             FileHandler FH = new FileHandler();
             FH.Select();
-        }
-        public class person
-        {
-            public string firstname { get; set; }
-            public string lastname { get; set; }
-            //int ID;
-            //public person(string Firstname, string Lastname)
-            //{
-            //    firstname = Firstname;
-            //    lastname = Lastname;
-            //    //this.ID = ID;
-            //}
         }
     }
 }

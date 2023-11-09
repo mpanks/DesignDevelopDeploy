@@ -31,23 +31,22 @@ namespace Coursework
                 using (var cmd = connection.CreateCommand())
                 {
                     cmd.CommandText = "SELECT title, firstname, lastname, time, location " +
-                        "FROM userinfo, studentMeeting " +
-                        "WHERE userInfo.loginID = @loginID " +
+                        "FROM userinfo, studentMeeting ";
                         //"AND userInfo.loginID = studentMeeting.StudentID " +
                         //"AND userInfo.accessLevel = @AccLvl " +
-                        "AND confirmed = 0;";
+                    switch (_accLvl)
+                    {
+                        case 1:
+                            cmd.CommandText += "WHERE userInfo.loginID = PSID AND studentID = @loginID AND studentConfirmed = 0;";
+                            break;
+                        case 2:
+                            cmd.CommandText += "WHERE userInfo.loginID = studentID AND PSID = @loginID AND PSconfirmed = 0;";
+                            break;
+                        default:
+                            break;
+                    }
                     cmd.Parameters.AddWithValue("@loginID", _loginID);
-                    //switch(_accLvl)
-                    //{
-                    //    case 1:
-                    //        cmd.Parameters.AddWithValue("@AccLvl", 2);
-                    //        break;
-                    //    case 2:
-                    //        cmd.Parameters.AddWithValue("@AccLevel", 1);
-                    //        break;
-                    //    default:
-                    //        break;
-                    //}
+
                     using (var sr = cmd.ExecuteReader())
                     {
                         while (sr.Read())
@@ -59,7 +58,17 @@ namespace Coursework
                 }
 
                 var update = connection.CreateCommand();
-                update.CommandText = "UPDATE studentMeeting SET confirmed = 1 WHERE studentID = @loginID;";
+                switch (_accLvl)
+                {
+                    case 1:
+                        update.CommandText ="UPDATE studentMeeting SET studentConfirmed = 1 WHERE studentID = @loginID;";
+                        break;
+                    case 2:
+                        update.CommandText = "UPDATE studentMeeting SET PSconfirmed = 1 WHERE PSID = @loginID;";
+                        break;
+                    default:
+                        break;
+                }
                 update.Parameters.AddWithValue("@loginID", _loginID);
                 update.ExecuteNonQuery();
                 connection.Close();
