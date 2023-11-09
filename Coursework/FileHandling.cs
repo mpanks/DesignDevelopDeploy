@@ -72,7 +72,6 @@ namespace Coursework
 
                 if (hashing.checkPassword(_password,hash,salt))
                 {
-                    //TODO Move to users home screen
                     userHomeScreen uhs = new userHomeScreen(_loginID);
                     uhs.Select();
                 }

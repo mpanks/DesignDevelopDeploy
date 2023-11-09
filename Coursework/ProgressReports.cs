@@ -71,19 +71,30 @@ namespace Coursework
                     case 1:
                         cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (LoginID = @loginID);";
                         cmd.Parameters.AddWithValue("@loginID", _loginID);
+                        cmd.ExecuteNonQuery();
+                        using (var sr = cmd.ExecuteReader())
+                        {
+                            while (sr.Read())
+                            {
+                                Functions.OutputMessage($"{sr.GetName(0)}: {sr.GetString(0)}\n{sr.GetName(1)}: {sr.GetString(1)}\n");
+                            }
+                        }
                         break;
                         case 2:
-                        cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (PSID = @login)";
+                        cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
+                            "FROM ProgressReports, UserInfo " +
+                            "WHERE (PSID = @login) " +
+                            "AND (UserInfo.loginID = ProgressReports.loginID);";
                         cmd.Parameters.AddWithValue("@login", _loginID);
+                        cmd.ExecuteNonQuery();
+                        using (var sr = cmd.ExecuteReader())
+                        {
+                            while (sr.Read())
+                            {
+                                Functions.OutputMessage($"{sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}\n");
+                            }
+                        }
                         break;
-                }
-                cmd.ExecuteNonQuery();
-                using (var sr = cmd.ExecuteReader())
-                {
-                    while (sr.Read())
-                    {
-                        Functions.OutputMessage($"{sr.GetName(0)}: {sr.GetString(0)}\n{sr.GetName(1)}: {sr.GetString(1)}\n");
-                    }
                 }
             }
         }

@@ -86,10 +86,9 @@ namespace Coursework
             //TODO Add menu options for Student home screen
             _menuItems.Add(new AddProgressReport(_loginID));
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
+            _menuItems.Add(new ViewMeetings(1, _loginID));
             //TODO Implement requesting a meeting
             _menuItems.Add(new ExitMenuItem(this)); 
-            //TODO Get Homescreen exit options working
-            //Might need to get a new menu item to escape both the previous class instance as well as this one, at the same time
         }
         public override string MenuText()
         {
@@ -99,7 +98,6 @@ namespace Coursework
         {
             //CreateMenu();
             base.Select();
-            Console.WriteLine("Student Home Page");
         }
     }
     class PSHomeScreen : userHomeScreen, MenuItem
@@ -114,10 +112,10 @@ namespace Coursework
             _menuItems.Clear();
             //TODO Add menu items for PS home screen
             _menuItems.Add(new ViewProgressReports(_loginID, 2));
+            _menuItems.Add(new ViewMeetings(2,_loginID));
             //TODO Allow PS to view specific students reports
             //TODO allow PS To book meetings with students
             _menuItems.Add(new ExitMenuItem(this));
-            //TODO Get ExitMenuItem to work, doesn't exit and keeps prompting user to select from the list
         }
         public override string MenuText()
         {
@@ -127,7 +125,6 @@ namespace Coursework
         {
             base.Select();
             //TODO Implement notifying user of new meetings
-            Console.WriteLine("Welcome to PS homescreen");
         }
     }
 }
