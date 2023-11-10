@@ -128,7 +128,6 @@ namespace Coursework
         public override void Select()
         {
             base.Select();
-            //TODO Implement notifying user of new meetings
         }
     }
 }

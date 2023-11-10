@@ -32,9 +32,9 @@ namespace Coursework
                 //string salt = hash.GenerateSalt();
                 //string password = hash.GenerateHash("password", salt);
                 cmd.CommandText = //"ALTER TABLE studentMeeting Rename COLUMN confirmed TO studentConfirmed;";
-                                  //"ALTER TABLE studentMeeting ADD COLUMN PSconfirmed INTEGER; ";
-                                  //$"INSERT INTO studentMeeting(studentID,PSID,location,time) Values ('717402','1','Teams','10:30'); ";
-                                  "UPDATE studentMeeting SET studentConfirmed = 0, PSconfirmed = 0 WHERE studentID='717402';";
+                                  //"ALTER TABLE studentMeeting ADD COLUMN date TEXT; " +
+                //$"INSERT INTO studentMeeting(studentID,PSID,location,time) Values ('717402','1','Teams','10:30'); ";
+                "UPDATE studentMeeting SET studentConfirmed = 0, PSconfirmed = 0, date = '12-12-24' WHERE studentID='717402';";
                 cmd.ExecuteNonQuery();
                 sqlConnection.Close();
                 Console.WriteLine("Created table");

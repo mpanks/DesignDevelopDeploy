@@ -30,7 +30,7 @@ namespace Coursework
                 connection.Open();
                 using (var cmd = connection.CreateCommand())
                 {
-                    cmd.CommandText = "SELECT title, firstname, lastname, time, location " +
+                    cmd.CommandText = "SELECT title, firstname, lastname, date, time, location " +
                         "FROM userinfo, studentMeeting ";
                         //"AND userInfo.loginID = studentMeeting.StudentID " +
                         //"AND userInfo.accessLevel = @AccLvl " +
@@ -52,7 +52,7 @@ namespace Coursework
                         while (sr.Read())
                         {
                             Functions.OutputMessage($"You have an unviewed meeting with {sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}:" +
-                                $"\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}");
+                                $"\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}\n{sr.GetName(5)}: {sr.GetString(5)}");
                         }
                     }
                 }
@@ -242,7 +242,7 @@ namespace Coursework
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT firstName, lastName, Title, location, time " +
+                cmd.CommandText = "SELECT firstName, lastName, Title, location, date, time " +
                             "FROM studentMeeting, UserInfo ";
                 switch (_accessLevel)
                 {
@@ -275,7 +275,8 @@ namespace Coursework
                 {
                     while (sr.Read())
                     {
-                        Functions.OutputMessage($"Meeting with {sr.GetString(2)} {sr.GetString(0)} {sr.GetString(1)}:\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}\n");
+                        Functions.OutputMessage($"Meeting with {sr.GetString(2)} {sr.GetString(0)} {sr.GetString(1)}:\n{sr.GetName(3)}: {sr.GetString(3)}\n" +
+                            $"{sr.GetName(4)}: {sr.GetString(4)}\n{sr.GetName(5)}: {sr.GetString(5)}");
                     }
                 }
             }
