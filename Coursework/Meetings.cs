@@ -25,6 +25,7 @@ namespace Coursework
         }
         public void Select()
         {
+            //TODO meetingNotification select clean up void
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
@@ -32,8 +33,8 @@ namespace Coursework
                 {
                     cmd.CommandText = "SELECT title, firstname, lastname, date, time, location " +
                         "FROM userinfo, studentMeeting ";
-                        //"AND userInfo.loginID = studentMeeting.StudentID " +
-                        //"AND userInfo.accessLevel = @AccLvl " +
+                    //"AND userInfo.loginID = studentMeeting.StudentID " +
+                    //"AND userInfo.accessLevel = @AccLvl " +
                     switch (_accLvl)
                     {
                         case 1:
@@ -61,7 +62,7 @@ namespace Coursework
                 switch (_accLvl)
                 {
                     case 1:
-                        update.CommandText ="UPDATE studentMeeting SET studentConfirmed = 1 WHERE studentID = @loginID;";
+                        update.CommandText = "UPDATE studentMeeting SET studentConfirmed = 1 WHERE studentID = @loginID;";
                         break;
                     case 2:
                         update.CommandText = "UPDATE studentMeeting SET PSconfirmed = 1 WHERE PSID = @loginID;";
@@ -77,6 +78,7 @@ namespace Coursework
     }
     class CreateMeeting : MenuItem
     {
+        //TODO clean up variables
         private int _accessLevel;
         private string _loginID;
         private string _location;
@@ -97,10 +99,8 @@ namespace Coursework
             //TODO check if room is available at that time
             //"Teams" isnt a "room" and can have overlapping times IF both parties are free at that time
             //Create bool function, sql select w/ cmd.executeScalar() != null
-            //List<string> times = new List<string>();
-            //List<string> roomAvailability = new List<string>();
             GetMeetingDetails(_accessLevel);
-            if (CheckAvailability())
+            if (CheckAvailability() && CheckRoom())
             {
                 using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
                 {
@@ -113,8 +113,8 @@ namespace Coursework
                             //Student creates meeting
                             //GetCurrentMeetings(times, _loginID, _otherID);
                             //if (!times.Contains(_time))
-                                //{
-                                cmd.Parameters.AddWithValue("@studentID", _loginID);
+                            //{
+                            cmd.Parameters.AddWithValue("@studentID", _loginID);
                             cmd.Parameters.AddWithValue("@PSID", _otherID);
                             //}
                             //else
@@ -166,7 +166,7 @@ namespace Coursework
         }
         private bool CheckAvailability()
         {
-            using(var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
@@ -176,7 +176,7 @@ namespace Coursework
                     "AND location=@location " +
                     "AND date = @date " +
                     "AND time=time ";
-                switch(_accessLevel)
+                switch (_accessLevel)
                 {
                     case 1:
                         cmd.Parameters.AddWithValue("@studentID", _loginID);
@@ -194,7 +194,29 @@ namespace Coursework
                 cmd.Parameters.AddWithValue("@date", _date);
                 cmd.Parameters.AddWithValue("@location", _location);
                 cmd.Parameters.AddWithValue("@time", _time);
-                if(cmd.ExecuteScalar()!=null)
+                if (cmd.ExecuteScalar() != null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        private bool CheckRoom()
+        {
+            using(var connection = new SqliteConnection("DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "SELECT location FROM studentMeeting " +
+                    "WHERE date = @date " +
+                    "AND time = @time " +
+                    "AND location != 'Teams';";
+                cmd.Parameters.AddWithValue("@date", _date);
+                cmd.Parameters.AddWithValue("@time", _time);
+                if(cmd.ExecuteScalar() != null)
                 {
                     return true;
                 }
@@ -205,24 +227,6 @@ namespace Coursework
             }
         }
 
-        //private void GetCurrentMeetings(List<string> times, string studentID, string PSID)
-        //{
-        //    using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
-        //    {
-        //        connection.Open();
-        //        var cmd = connection.CreateCommand();
-        //        cmd.CommandText = "SELECT date, time FROM studentMeeting WHERE studentID = @studentID AND PSID = @PSID;";
-        //        cmd.Parameters.AddWithValue("@studentID", studentID);
-        //        cmd.Parameters.AddWithValue("@PSID", PSID);
-        //        using (var sr = cmd.ExecuteReader())
-        //        {
-        //            while (sr.Read())
-        //            {
-        //                times.Add(sr.GetString(0));
-        //            }
-        //        }
-        //    }
-        //}
         private void GetMeetingDetails(int accLvl)
         {
             Functions.OutputMessage("Please input other parties first name");
