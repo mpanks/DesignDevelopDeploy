@@ -63,7 +63,8 @@ namespace Coursework
                         pshs.Select();
                         break;
                     case 3:
-                        //TODO Divert to ST homescreen
+                        STHomeScreen sTHomeScreen = new STHomeScreen(_loginID);
+                        sTHomeScreen.Select();
                         break;
                     case 4:
                         //TODO Divert to admin homescreen?
@@ -77,12 +78,8 @@ namespace Coursework
         }
     }
     class StudentHomeScreen : userHomeScreen, MenuItem
-    { 
-        private string _loginID;
-        public StudentHomeScreen(string loginID) : base(loginID)
-        {
-            _loginID = loginID;
-        }
+    {
+        public StudentHomeScreen(string loginID) : base(loginID) { }
         public override void CreateMenu()
         {
             _menuItems.Clear();
@@ -104,10 +101,8 @@ namespace Coursework
     }
     class PSHomeScreen : userHomeScreen, MenuItem
     {
-        internal string _loginID { get; private set; }
         public PSHomeScreen (string loginID): base(loginID)
         {
-            _loginID = loginID;
         }
         public override void CreateMenu()
         {
@@ -123,6 +118,30 @@ namespace Coursework
         public override string MenuText()
         {
             return "Personal Supervisors Home Screen";
+        }
+        public override void Select()
+        {
+            base.Select();
+        }
+    }
+    class STHomeScreen : userHomeScreen
+    {
+        private string _loginID;
+        public STHomeScreen(string loginID) : base(loginID)
+        {
+            _loginID=loginID;
+        }
+        public override void CreateMenu()
+        {
+            _menuItems.Clear();
+            //TODO Allow ST to review the reports of a specific student from one of their PSs
+            //TODO Allow ST to review all reports from every student under their PSs
+            //TODO Allow ST to book meetings with their PSs
+            _menuItems.Add(new ExitMenuItem(this));
+        }
+        public string MenuTEext()
+        {
+            return "Senior Tutor Home Screen";
         }
         public override void Select()
         {

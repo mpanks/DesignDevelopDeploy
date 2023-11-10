@@ -17,10 +17,6 @@ namespace Coursework
         {
             _loginID = loginID;
         }
-        //public override void CreateMenu()
-        //{
-        //    _menuItems.Clear();
-        //}
         public string MenuText()
         {
             return "Add New Progress Report";

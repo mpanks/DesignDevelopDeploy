@@ -25,7 +25,6 @@ namespace Coursework
         }
         public void Select()
         {
-            //TODO meetingNotification select clean up void
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
@@ -96,9 +95,6 @@ namespace Coursework
         }
         public void Select()
         {
-            //TODO check if room is available at that time
-            //"Teams" isnt a "room" and can have overlapping times IF both parties are free at that time
-            //Create bool function, sql select w/ cmd.executeScalar() != null
             GetMeetingDetails(_accessLevel);
             if (CheckAvailability() && CheckRoom())
             {
