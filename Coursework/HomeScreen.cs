@@ -86,7 +86,6 @@ namespace Coursework
         public override void CreateMenu()
         {
             _menuItems.Clear();
-            //TODO Add menu options for Student home screen
             _menuItems.Add(new AddProgressReport(_loginID));
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
             _menuItems.Add(new ViewMeetings(1, _loginID));

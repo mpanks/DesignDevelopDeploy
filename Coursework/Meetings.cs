@@ -82,6 +82,7 @@ namespace Coursework
         private string _location;
         private string _time;
         private string _otherID;
+        private string _date;
         public CreateMeeting(int accLvl, string loginID)
         {
             _accessLevel = accLvl;
@@ -95,82 +96,133 @@ namespace Coursework
         {
             //TODO check if room is available at that time
             //"Teams" isnt a "room" and can have overlapping times IF both parties are free at that time
-            //Create list of times that are taken, search list for the selected time
-            List<string> times = new List<string>();
+            //Create bool function, sql select w/ cmd.executeScalar() != null
+            //List<string> times = new List<string>();
+            //List<string> roomAvailability = new List<string>();
             GetMeetingDetails(_accessLevel);
-            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            if (CheckAvailability())
             {
-                connection.Open();
-                var cmd = connection.CreateCommand();
-                cmd.CommandText = "INSERT INTO studentMeeting(studentID, PSID, location, time) VALUES(@studentID, @PSID, @location, @time);";
-                switch (_accessLevel)
+                using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
                 {
-                    case 1:
-                        //Student creates meeting
-                        GetCurrentMeetings(times, _loginID, _otherID);
-                        if (!times.Contains(_time))
-                        {
-                            cmd.Parameters.AddWithValue("@studentID", _loginID);
+                    connection.Open();
+                    var cmd = connection.CreateCommand();
+                    cmd.CommandText = "INSERT INTO studentMeeting(studentID, PSID, location, time) VALUES(@studentID, @PSID, @location, @time);";
+                    switch (_accessLevel)
+                    {
+                        case 1:
+                            //Student creates meeting
+                            //GetCurrentMeetings(times, _loginID, _otherID);
+                            //if (!times.Contains(_time))
+                                //{
+                                cmd.Parameters.AddWithValue("@studentID", _loginID);
                             cmd.Parameters.AddWithValue("@PSID", _otherID);
-                        }
-                        else
-                        {
-                            Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
-                        }
-                        break;
-                    case 2:
-                        //PS creates meeting
-                        GetCurrentMeetings(times, _otherID, _loginID);
-                        if (!times.Contains(_time))
-                        {
+                            //}
+                            //else
+                            //{
+                            //    Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
+                            //}
+                            break;
+                        case 2:
+                            //PS creates meeting
+                            //GetCurrentMeetings(times, _otherID, _loginID);
+                            //if (!times.Contains(_time))
+                            //{
                             cmd.Parameters.AddWithValue("@studentID", _otherID);
                             cmd.Parameters.AddWithValue("@PSID", _loginID);
+                            //}
+                            //else
+                            //{
+                            //    Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
+                            //}
+                            break;
+                        default:
+                            cmd.Parameters.AddWithValue("@studentID", "-1");
+                            cmd.Parameters.AddWithValue("@PSID", "-1");
+                            break;
+                    }
+                    if (cmd.Parameters.Count > 3)
+                    {
+                        cmd.Parameters.AddWithValue("@location", _location);
+                        cmd.Parameters.AddWithValue("@time", _time);
+                        if (cmd.ExecuteNonQuery() > 0)
+                        {
+                            Functions.OutputMessage($"Meeting created for {_time} in {_location}");
                         }
                         else
                         {
-                            Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
+                            Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
                         }
-                        break;
-                    default:
-                        break;
-                }
-                if (cmd.Parameters.Count > 3)
-                {
-                    cmd.Parameters.AddWithValue("@location", _location);
-                    cmd.Parameters.AddWithValue("@time", _time);
-                    if (cmd.ExecuteNonQuery() > 0)
-                    {
-                        Functions.OutputMessage($"Meeting created for {_time} in {_location}");
                     }
                     else
                     {
                         Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
                     }
                 }
-                else
-                {
-                    Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
-                }
+            }
+            else
+            {
+                Functions.OutputMessage($"The time slot {_time} on the date {_date} is already taken");
             }
         }
-        private void GetCurrentMeetings(List<string> times, string studentID, string PSID)
+        private bool CheckAvailability()
         {
-            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            using(var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT time FROM studentMeeting WHERE studentID = @studentID AND PSID = @PSID;";
-                cmd.Parameters.AddWithValue("@studentID", studentID);
-                cmd.Parameters.AddWithValue("@PSID", PSID);
-                using (var sr = cmd.ExecuteReader())
+                cmd.CommandText = "SELECT * FROM studentMeeting " +
+                    "WHERE studentID=@studentID " +
+                    "AND PSID = @PSID " +
+                    "AND location=@location " +
+                    "AND date = @date " +
+                    "AND time=time ";
+                switch(_accessLevel)
                 {
-                    while (sr.Read())
-                    {
-                        times.Add(sr.GetString(0));
-                    }
+                    case 1:
+                        cmd.Parameters.AddWithValue("@studentID", _loginID);
+                        cmd.Parameters.AddWithValue("@PSID", _otherID);
+                        break;
+                    case 2:
+                        cmd.Parameters.AddWithValue("@studentID", _otherID);
+                        cmd.Parameters.AddWithValue("@PSID", _loginID);
+                        break;
+                    default:
+                        cmd.Parameters.AddWithValue("@studentID", "-1");
+                        cmd.Parameters.AddWithValue("@PSID", "-1");
+                        break;
+                }
+                cmd.Parameters.AddWithValue("@date", _date);
+                cmd.Parameters.AddWithValue("@location", _location);
+                cmd.Parameters.AddWithValue("@time", _time);
+                if(cmd.ExecuteScalar()!=null)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
                 }
             }
         }
+
+        //private void GetCurrentMeetings(List<string> times, string studentID, string PSID)
+        //{
+        //    using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+        //    {
+        //        connection.Open();
+        //        var cmd = connection.CreateCommand();
+        //        cmd.CommandText = "SELECT date, time FROM studentMeeting WHERE studentID = @studentID AND PSID = @PSID;";
+        //        cmd.Parameters.AddWithValue("@studentID", studentID);
+        //        cmd.Parameters.AddWithValue("@PSID", PSID);
+        //        using (var sr = cmd.ExecuteReader())
+        //        {
+        //            while (sr.Read())
+        //            {
+        //                times.Add(sr.GetString(0));
+        //            }
+        //        }
+        //    }
+        //}
         private void GetMeetingDetails(int accLvl)
         {
             Functions.OutputMessage("Please input other parties first name");
@@ -184,6 +236,9 @@ namespace Coursework
 
             Functions.OutputMessage("Please choose a time for the meeting (HH:MM)");
             _time = Functions.GetString();
+
+            Functions.OutputMessage("Please choose date for the meeting (DD-MM-YY)");
+            _date = Functions.GetString();
 
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
@@ -246,7 +301,7 @@ namespace Coursework
                             "FROM studentMeeting, UserInfo ";
                 switch (_accessLevel)
                 {
-                    case 1: //TODO Add date to DB for meetings
+                    case 1:
                         cmd.CommandText += "WHERE studentID = @loginID " +
                             "AND PSID = UserInfo.loginID;";
                         break;
