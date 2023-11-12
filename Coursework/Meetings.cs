@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -202,7 +204,7 @@ namespace Coursework
         }
         private bool CheckRoom()
         {
-            using(var connection = new SqliteConnection("DDD_CW.db"))
+            using (var connection = new SqliteConnection("DDD_CW.db"))
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
@@ -212,7 +214,7 @@ namespace Coursework
                     "AND location != 'Teams';";
                 cmd.Parameters.AddWithValue("@date", _date);
                 cmd.Parameters.AddWithValue("@time", _time);
-                if(cmd.ExecuteScalar() != null)
+                if (cmd.ExecuteScalar() != null)
                 {
                     return true;
                 }
@@ -335,6 +337,135 @@ namespace Coursework
                     }
                 }
             }
+        }
+    }
+    class ManageMeetings : MenuItem
+    {
+        private string _loginID;
+        public ManageMeetings(string loginID)
+        {
+            _loginID = loginID;
+        }
+        public string MenuText()
+        {
+            return "Manage Meetings";
+        }
+        public void Select()
+        {
+            //PS Selects meeting - search by date and time
+            //Prompts PS to choose between editing/changing meeting, deleting/cancelling meeting and exiting (return to home screen)
+            string meetingID = GetMeeting();
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+
+                int selection = Functions.GetIntegerInRange(1, 3, "Please choose to:\n1: Cancel meeting\n2: Update meeting\n3: Return to home screen");
+                switch (selection)
+                {
+                    case 1:
+                        //Canel meeting - delete row from db
+                        cmd.CommandText = "DELETE FROM studentMeeting WHERE meetingID = @meetingID AND PSID = @loginID;";
+                        cmd.Parameters.AddWithValue("@meetingID", meetingID);
+                        cmd.Parameters.AddWithValue("@loginID", _loginID);
+
+                        if (cmd.ExecuteScalar != null)
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                        Functions.OutputMessage("Meeting cancelled");
+                        break;
+                    case 2:
+                        //Update meeting
+                        bool run = true;
+                        do
+                        {
+                            cmd.CommandText = "UPDATE studentMeeting " +
+                                "SET location = @location, " +
+                                "time = @time, " +
+                                "date = @date " +
+                                "WHERE meetingID = @meetingID " +
+                                "AND PSID = @loginID;";
+                            cmd.Parameters.AddWithValue("@location", Functions.GetString("Please select desired location (\"Teams\" for virtual meetings)"));
+                            cmd.Parameters.AddWithValue("@time", Functions.GetString("Please choose a time for the meeting (HH:MM)"));
+                            cmd.Parameters.AddWithValue("@date", Functions.GetString("Please select a date for the meeting (DD-MM-YY)"));
+                            cmd.Parameters.AddWithValue("@meetingID", meetingID);
+                            cmd.Parameters.AddWithValue("@loginID", _loginID);
+                            if (cmd.ExecuteNonQuery() > 0)
+                            {
+                                cmd.ExecuteNonQuery();
+                                Functions.OutputMessage("Meeting updated");
+                                run = false;
+                            }
+                            else
+                            {
+                                Functions.OutputMessage("Meeting was not able to be updated, please try again");
+                            }
+                        } while (run);
+                        break;
+                    case 3:
+                        //User exits, no modification
+                        return;
+                    default:
+                        //Some other input is received, should never happen
+                        break;
+                }
+            }
+        }
+        private string GetMeeting()
+        {
+            bool run = true;
+            string meetingID = string.Empty;
+
+            do
+            {
+                string[] time_date = SelectMeetingDetails().Split(" ");
+                if (time_date.Count() > 1)
+                {
+                    using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+                    {
+                        connection.Open();
+                        var cmd = connection.CreateCommand();
+                        cmd.CommandText = "SELECT title, firstname, lastname, location, date, time, meetingID " +
+                            "FROM studentMeeting, UserInfo " +
+                            "WHERE date=@date " +
+                            "AND time = @time " +
+                            "AND PSID = @loginID " +
+                            "AND UserInfo.loginID = studentID;";
+                        cmd.Parameters.AddWithValue("@time", time_date[0]);
+                        cmd.Parameters.AddWithValue("@date", time_date[1]);
+                        cmd.Parameters.AddWithValue("@loginID", _loginID);
+                        if (cmd.ExecuteScalar() != null)
+                        {
+                            using (var sr = cmd.ExecuteReader())
+                            {
+                                while (sr.Read())
+                                {
+                                    Functions.OutputMessage("You have selected the meeting with: " +
+                                        $"{sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}\nlocation: {sr.GetString(3)}\nOn: {sr.GetString(4)}\nAt: {sr.GetString(5)}");
+                                    meetingID = sr.GetString(6);
+                                }
+                                run = false;
+                            }
+                        }
+                        else { Functions.OutputMessage("Cannot find meeting with the details provided"); }
+                    }
+                }
+                else
+                {
+                    Functions.OutputMessage("Date or time inputted in incorrect format, please try again");
+                }
+            } while (run);
+            return meetingID;
+        }
+        private string SelectMeetingDetails()
+        {
+            Functions.OutputMessage("Please input the time of the meeting (HH:MM)");
+            string output = Functions.GetString();
+            Functions.OutputMessage("Please input the date of the meeting (DD-MM-YY)");
+            output += " " + Functions.GetString();
+
+            return output;
         }
     }
 }

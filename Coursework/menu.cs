@@ -58,8 +58,12 @@ namespace Coursework
             }
             while (true);
         }
-        public static string GetString()
+        public static string GetString(string message = "")
         {
+            if(message != "")
+            {
+                OutputMessage(message);
+            }
             return Console.ReadLine();
         }
 

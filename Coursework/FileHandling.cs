@@ -61,14 +61,6 @@ namespace Coursework
                     }
                 }
                 Hashing hashing = new Hashing();
-                //salt = hashing.GenerateSalt();
-                //_password = hashing.GenerateHash(_password, salt);
-                //cmd.CommandText = $"UPDATE UserLogin " +
-                //    $"SET password = '{_password}', salt = '{salt}' " +
-                //    $"WHERE (loginID = 717402);";
-                //Console.WriteLine("\n" + cmd.CommandText);
-                //cmd.ExecuteNonQuery();
-                //connection.Close();
 
                 if (hashing.checkPassword(_password,hash,salt))
                 {
