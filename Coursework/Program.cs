@@ -15,12 +15,15 @@ namespace Coursework
                 sqlConnection.Open();
                 var cmd = sqlConnection.CreateCommand();
 
-                //cmd.CommandText = "Create Table studentMeeting(studentID TEXT NOT NULL, " +
+                //cmd.CommandText = "Create Table PSMeeting(PSID TEXT NOT NULL, " +
                 //    "meetingID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                //    "PSID TEXT NOT NULL, " +
+                //    "STID TEXT NOT NULL, " +
                 //    "location TEXT NOT NULL, " +
                 //    "time TEXT NOT NULL, " +
-                //    "FOREIGN KEY(studentID) " +
+                //    "date TEXT NOT NULL, " +
+                //    "PSConfirmed INT, " +
+                //    "STConfirmed, " +
+                //    "FOREIGN KEY(STID) " +
                 //    " REFERENCES UserLogin(LoginID) " +
                 //    " ON UPDATE CASCADE " +
                 //    " ON DELETE CASCADE, " +
@@ -31,10 +34,10 @@ namespace Coursework
                 //Hashing hash = new Hashing();
                 //string salt = hash.GenerateSalt();
                 //string password = hash.GenerateHash("password", salt);
-                cmd.CommandText = //"ALTER TABLE studentMeeting Rename COLUMN confirmed TO studentConfirmed;";
-                                  //"ALTER TABLE studentMeeting ADD COLUMN date TEXT; " +
-                                  //$"INSERT INTO UserInfo(loginID, title, firstname, lastname, accesslevel) VALUES ('717403','Miss','Anita', 'Smith',1); ";
-                "UPDATE studentMeeting SET studentConfirmed = 0, PSconfirmed = 0, date = '12-12-24' WHERE PSID='1';";
+                cmd.CommandText = $"INSERT INTO PSMeeting(PSID,STID,location,time,date,PSConfirmed,STConfirmed) Values('1','3', 'RBB-209','13:45','13-12-24',0,0);";
+                //                  //                  //"ALTER TABLE studentMeeting ADD COLUMN date TEXT; " +
+                //                  //$"INSERT INTO UserInfo(loginID, title, firstname, lastname, accesslevel) VALUES ('3','Mrs','Julia', 'Loughborough', 3); ";
+                //"UPDATE studentMeeting SET studentConfirmed = 0, PSconfirmed = 0, date = '12-12-24' WHERE PSID='1';";
                 cmd.ExecuteNonQuery();
                 sqlConnection.Close();
                 Console.WriteLine("Created table");

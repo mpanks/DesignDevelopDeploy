@@ -84,7 +84,7 @@ namespace Coursework
             _menuItems.Clear();
             _menuItems.Add(new AddProgressReport(_loginID));
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
-            _menuItems.Add(new ViewMeetings(1, _loginID));
+            _menuItems.Add(new ViewStudentMeetings(1, _loginID));
             _menuItems.Add(new CreateMeeting(1, _loginID));
             _menuItems.Add(new ExitMenuItem(this)); 
         }
@@ -106,10 +106,9 @@ namespace Coursework
         {
             _menuItems.Clear();
             _menuItems.Add(new ViewProgressReports(_loginID, 2));
-            _menuItems.Add(new ViewMeetings(2,_loginID));
-            _menuItems.Add(new ViewMeetings(2, _loginID, true));
+            _menuItems.Add(new ViewStudentMeetings(2,_loginID));
+            _menuItems.Add(new ViewStudentMeetings(2, _loginID, true));
             _menuItems.Add(new CreateMeeting(2,_loginID));
-            //TODO allow PSs to manage their meetings, cancel meetings and reschedule/change location
             _menuItems.Add(new ManageMeetings(_loginID));
             _menuItems.Add(new ExitMenuItem(this));
         }

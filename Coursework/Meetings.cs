@@ -274,12 +274,28 @@ namespace Coursework
             }
         }
     }
-    class ViewMeetings : MenuItem
+    class ViewPSMeetings : MenuItem
+    {
+        public string MenuText()
+        {
+            return "View meetings";
+        }
+        public void Select()
+        {
+            using (var connection = new SqliteConnection("DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+                cmd.CommandText = "";
+            }
+        }
+    }
+    class ViewStudentMeetings : MenuItem
     {
         private int _accessLevel;
         private string _loginID;
         private bool _select;
-        public ViewMeetings(int accessLevel, string loginID, bool selectStudent = false)
+        public ViewStudentMeetings(int accessLevel, string loginID, bool selectStudent = false)
         {
             _accessLevel = accessLevel;
             _loginID = loginID;
@@ -374,7 +390,7 @@ namespace Coursework
                             cmd.ExecuteNonQuery();
                         }
                         Functions.OutputMessage("Meeting cancelled");
-                        break;
+                        return;
                     case 2:
                         //Update meeting
                         bool run = true;
@@ -402,13 +418,13 @@ namespace Coursework
                                 Functions.OutputMessage("Meeting was not able to be updated, please try again");
                             }
                         } while (run);
-                        break;
+                        return;
                     case 3:
                         //User exits, no modification
                         return;
                     default:
                         //Some other input is received, should never happen
-                        break;
+                        return;
                 }
             }
         }
