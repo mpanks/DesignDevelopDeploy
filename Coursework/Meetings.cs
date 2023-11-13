@@ -42,7 +42,7 @@ namespace Coursework
                                 "FROM userinfo, studentMeeting WHERE userInfo.loginID = PSID AND studentID = @loginID AND studentConfirmed = 0;";
                             break;
                         case 2:
-                            cmd.CommandText += "SELECT title, firstname, lastname, studentMeeting.date, studentMeeting.time, studentMeeting.location "+
+                            cmd.CommandText += "SELECT title, firstname, lastname, studentMeeting.date, studentMeeting.time, studentMeeting.location " +
                                 "FROM userinfo, studentmeeting, psmeeting " +
                                 "WHERE (userInfo.loginID = studentID OR userinfo.loginID = STID) " +
                                 "AND (studentmeeting.PSID = @loginID OR psmeeting.PSID = @loginID1) " +
@@ -74,14 +74,21 @@ namespace Coursework
                 {
                     case 1:
                         update.CommandText = "UPDATE studentMeeting SET studentConfirmed = 1 WHERE studentID = @loginID;";
+                        update.Parameters.AddWithValue("@loginID", _loginID);
                         break;
                     case 2:
-                        update.CommandText = "UPDATE studentMeeting SET PSconfirmed = 1 WHERE PSID = @loginID;";
+                        update.CommandText = "UPDATE studentMeeting SET PSconfirmed = 1 WHERE PSID = @loginID; " +
+                            "UPDATE PSMeeting SET PSconfirmed = 1 WHERE psid = @psid;";
+                        update.Parameters.AddWithValue("@psid", _loginID); 
+                        update.Parameters.AddWithValue("@loginID", _loginID);
+                        break;
+                    case 3:
+                        update.CommandText = "UPDATE PSMeeting set STConfirmed = 1 WHERE stid = @stid";
+                        update.Parameters.AddWithValue("@stid", _loginID);
                         break;
                     default:
                         break;
                 }
-                update.Parameters.AddWithValue("@loginID", _loginID);
                 update.ExecuteNonQuery();
                 connection.Close();
             }
