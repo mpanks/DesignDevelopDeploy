@@ -131,9 +131,10 @@ namespace Coursework
         public override void CreateMenu()
         {
             _menuItems.Clear();
+            _menuItems.Add(new ViewMeetings(3, _loginID));
             //TODO Allow ST to review the reports of a specific student from one of their PSs
-            //TODO Allow ST to review all reports from every student under their PSs
-            //TODO Allow ST to book meetings with their PSs
+            _menuItems.Add(new ViewProgressReports(_loginID, 3));
+            _menuItems.Add(new CreateMeeting(3,_loginID));
             _menuItems.Add(new ExitMenuItem(this));
         }
         public string MenuTEext()

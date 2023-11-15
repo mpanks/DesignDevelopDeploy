@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -66,7 +67,6 @@ namespace Coursework
                     case 1:
                         cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (LoginID = @loginID);";
                         cmd.Parameters.AddWithValue("@loginID", _loginID);
-                        cmd.ExecuteNonQuery();
                         using (var sr = cmd.ExecuteReader())
                         {
                             while (sr.Read())
@@ -75,23 +75,46 @@ namespace Coursework
                             }
                         }
                         break;
-                        case 2:
+                    case 2:
                         cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
                             "FROM ProgressReports, UserInfo " +
                             "WHERE (PSID = @login) " +
                             "AND (UserInfo.loginID = ProgressReports.loginID);";
                         cmd.Parameters.AddWithValue("@login", _loginID);
-                        cmd.ExecuteNonQuery();
-                        using (var sr = cmd.ExecuteReader())
-                        {
-                            while (sr.Read())
-                            {
-                                Functions.OutputMessage($"{sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}\n");
-                            }
-                        }
+                        OutputDetails(cmd);
+                        break;
+                    case 3:
+                        cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
+                            "FROM ProgressReports, UserInfo " +
+                            "WHERE (PSID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 2)) " +
+                            "AND (UserInfo.loginID = ProgressReports.loginID);";
+                        string[] PSdetails = GetPSDetails().Split(' ');
+
+                        cmd.Parameters.AddWithValue("@fname", PSdetails[0]);
+                        cmd.Parameters.AddWithValue("@lname", PSdetails[1]);
+                        OutputDetails(cmd);
+                        break;
+                    default:
                         break;
                 }
             }
+        }
+        private void OutputDetails(SqliteCommand cmd)
+        {
+            using (var sr = cmd.ExecuteReader())
+            {
+                while (sr.Read())
+                {
+                    Functions.OutputMessage($"{sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}\n");
+                }
+            }
+        }
+        private string GetPSDetails()
+        {
+            string output = string.Empty;
+            output += Functions.GetString("Please enter the Personal Supervisors first name");
+            output += " " + Functions.GetString("Please enter the Personal Supervisors last name");
+            return output;
         }
     }
 }

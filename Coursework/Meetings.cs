@@ -125,30 +125,19 @@ namespace Coursework
                     switch (_accessLevel)
                     {
                         case 1:
-                            //Student creates meeting
-                            //GetCurrentMeetings(times, _loginID, _otherID);
-                            //if (!times.Contains(_time))
-                            //{
+                            //Student creates a meeting
                             cmd.Parameters.AddWithValue("@studentID", _loginID);
                             cmd.Parameters.AddWithValue("@PSID", _otherID);
-                            //}
-                            //else
-                            //{
-                            //    Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
-                            //}
                             break;
                         case 2:
                             //PS creates meeting
-                            //GetCurrentMeetings(times, _otherID, _loginID);
-                            //if (!times.Contains(_time))
-                            //{
                             cmd.Parameters.AddWithValue("@studentID", _otherID);
                             cmd.Parameters.AddWithValue("@PSID", _loginID);
-                            //}
-                            //else
-                            //{
-                            //    Functions.OutputMessage($"Cannot create a meeting at {_time} as there is already a meeting booked then");
-                            //}
+                            break;
+                        case 3:
+                            //ST Creates meeting
+                            cmd.Parameters.AddWithValue("@studentID", _loginID);
+                            cmd.Parameters.AddWithValue("@PSID", _otherID);
                             break;
                         default:
                             cmd.Parameters.AddWithValue("@studentID", "-1");
@@ -325,6 +314,8 @@ namespace Coursework
                             "AND PSID = UserInfo.loginID;";
                         break;
                     case 2:
+                        //Get PS loginIDs under the ST
+                        //Get the meetings for the PSs with their IDs
                         cmd.CommandText = "SELECT firstName, lastName, Title, location, date, time " +
                         "FROM studentMeeting, UserInfo " +
                         "WHERE PSID = @loginID AND studentID = UserInfo.loginID;";
@@ -340,7 +331,11 @@ namespace Coursework
                             cmd.Parameters.AddWithValue("@fname", fname);
                             cmd.Parameters.AddWithValue("@lname", lname);
                         }
-                        break;
+                        using (var sr = cmd.ExecuteReader())
+                        {
+
+                        }
+                            break;
                     case 3:
                         cmd.CommandText = "SELECT firstName, lastName, Title, location, date, time " +
                         "FROM PSMeeting, UserInfo " +
