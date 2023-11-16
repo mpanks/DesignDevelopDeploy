@@ -134,6 +134,7 @@ namespace Coursework
             _menuItems.Add(new ViewMeetings(3, _loginID));
             //TODO Allow ST to review the reports of a specific student from one of their PSs
             _menuItems.Add(new ViewProgressReports(_loginID, 3));
+            _menuItems.Add(new ViewProgressReports(_loginID, 3, true));
             _menuItems.Add(new CreateMeeting(3,_loginID));
             _menuItems.Add(new ExitMenuItem(this));
         }

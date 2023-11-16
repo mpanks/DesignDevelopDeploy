@@ -47,14 +47,23 @@ namespace Coursework
     {
         internal string _loginID { get; private set; }
         private int _AccessLvl;
-        public ViewProgressReports(string loginID, int AccessLvl)
+        private bool _Student;
+        public ViewProgressReports(string loginID, int AccessLvl, bool student = false)
         {
             _loginID = loginID;
             _AccessLvl = AccessLvl;
+            _Student = student;
         }
         public string MenuText()
         {
-            return "View Progress Reports";
+            if (_Student == true)
+            {
+                return "View All Progress Reports";
+            }
+            else
+            {
+                return "Select Student's Progress Reports";
+            }
         }
         public void Select()
         {
@@ -84,14 +93,28 @@ namespace Coursework
                         OutputDetails(cmd);
                         break;
                     case 3:
-                        cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
-                            "FROM ProgressReports, UserInfo " +
-                            "WHERE (PSID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 2)) " +
-                            "AND (UserInfo.loginID = ProgressReports.loginID);";
-                        string[] PSdetails = GetPSDetails().Split(' ');
+                        if (_Student == true)
+                        {
+                            cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
+                                "FROM ProgressReports, UserInfo " +
+                                "WHERE (PSID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 2)) " +
+                                "AND (UserInfo.loginID = ProgressReports.loginID);";
+                            string[] PSdetails = GetDetails().Split(' ');
 
-                        cmd.Parameters.AddWithValue("@fname", PSdetails[0]);
-                        cmd.Parameters.AddWithValue("@lname", PSdetails[1]);
+                            cmd.Parameters.AddWithValue("@fname", PSdetails[0]);
+                            cmd.Parameters.AddWithValue("@lname", PSdetails[1]);
+                        }
+                        else
+                        {
+                            cmd.CommandText = "SELECT Title,FirstName, LastName, Report, ConfidenceLevel " +
+                                "FROM ProgressReports, UserInfo " +
+                                "WHERE (progressreports.loginID = (SELECT loginID FROM userInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 1)) " +
+                                "AND (userinfo.loginID = progressreports.loginID);";
+                            string[] StudentDetails = GetDetails().Split(" ");
+
+                            cmd.Parameters.AddWithValue("@fname", StudentDetails[0]);
+                            cmd.Parameters.AddWithValue("@lname", StudentDetails[1]);
+                        }
                         OutputDetails(cmd);
                         break;
                     default:
@@ -109,11 +132,11 @@ namespace Coursework
                 }
             }
         }
-        private string GetPSDetails()
+        private string GetDetails()
         {
             string output = string.Empty;
-            output += Functions.GetString("Please enter the Personal Supervisors first name");
-            output += " " + Functions.GetString("Please enter the Personal Supervisors last name");
+            output += Functions.GetString("Please enter the persons first name");
+            output += " " + Functions.GetString("Please enter the persons last name");
             return output;
         }
     }
