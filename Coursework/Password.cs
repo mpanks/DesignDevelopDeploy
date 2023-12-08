@@ -13,10 +13,10 @@ namespace Coursework
     class Hashing
     {
         //TODO Encapsulate hashing class before final commit
-        public string _salt { get; private set; }
-        public string _hash { get; private set; }
+        internal string _salt { get; private set; }
+        internal string _hash { get; private set; }
         public Hashing() { }
-        public string GenerateSalt()
+        private string GenerateSalt()
         {
             var rng = RandomNumberGenerator.Create();
             var buffer = new byte[10];
@@ -24,7 +24,7 @@ namespace Coursework
 
             return _salt = Convert.ToBase64String(buffer);
         }
-        public string GenerateHash(string password, string salt)
+        private string GenerateHash(string password, string salt)
         {
             using (SHA256 mySha256 = SHA256.Create())
             {

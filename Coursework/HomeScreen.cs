@@ -11,9 +11,8 @@ namespace Coursework
     internal class HomeScreen
     {
     }
-    class userHomeScreen : ConsoleMenu
+    class userHomeScreen : ConsoleMenu, MenuItem
     {
-        protected  ConsoleMenu menu { get { return this; } private set { } }
         protected int accLvl {get; private set;}
         protected string _loginID { get; private set;}
         public userHomeScreen( string pLoginID)
@@ -86,6 +85,7 @@ namespace Coursework
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
             _menuItems.Add(new ViewMeetings(1, _loginID));
             _menuItems.Add(new CreateMeeting(1, _loginID));
+            //TODO add manage meeting option for Student
             _menuItems.Add(new ExitMenuItem(this)); 
         }
         public override string MenuText()
@@ -106,6 +106,8 @@ namespace Coursework
         {
             _menuItems.Clear();
             _menuItems.Add(new ViewProgressReports(_loginID, 2));
+            _menuItems.Add(new ViewProgressReports(_loginID, 2, true));
+            //TODO add select progress reports for PS
             _menuItems.Add(new ViewMeetings(2,_loginID));
             _menuItems.Add(new ViewMeetings(2, _loginID, true));
             _menuItems.Add(new CreateMeeting(2,_loginID));
@@ -132,10 +134,10 @@ namespace Coursework
         {
             _menuItems.Clear();
             _menuItems.Add(new ViewMeetings(3, _loginID));
-            //TODO Allow ST to review the reports of a specific student from one of their PSs
             _menuItems.Add(new ViewProgressReports(_loginID, 3));
             _menuItems.Add(new ViewProgressReports(_loginID, 3, true));
             _menuItems.Add(new CreateMeeting(3,_loginID));
+            //TODO add manage meeting option for ST
             _menuItems.Add(new ExitMenuItem(this));
         }
         public string MenuTEext()

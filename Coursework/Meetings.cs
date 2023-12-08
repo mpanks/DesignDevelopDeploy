@@ -100,9 +100,9 @@ namespace Coursework
         private int _accessLevel;
         private string _loginID;
         private string _location;
-        private string _time;
+        private TimeOnly _time;
         private string _otherID;
-        private string _date;
+        private DateOnly _date;
         public CreateMeeting(int accLvl, string loginID)
         {
             _accessLevel = accLvl;
@@ -238,16 +238,41 @@ namespace Coursework
 
             Functions.OutputMessage("Please input other parties last name");
             string lname = Functions.GetString();
+            do {
+                Functions.OutputMessage("Please choose a location for the meeting (choose \"Teams\" for \"virtual\" meetings)");
+                _location = Functions.GetString();
+            }
+            while(_location == null || _location == " ");
+            //TODO verify date-time inputs
 
-            Functions.OutputMessage("Please choose a location for the meeting (choose \"Teams\" for \"virtual\" meetings)");
-            _location = Functions.GetString();
 
-            Functions.OutputMessage("Please choose a time for the meeting (HH:MM)");
-            _time = Functions.GetString();
+            bool getDate = true;
+            do
+            {
+                try
+                {
+                    //TODO format date & time 
+                    Functions.OutputMessage("Please choose a time for the meeting (HH:MM)");
+                    string timeString = Functions.GetString();
+                    _time = TimeOnly.Parse(timeString+":00");
 
-            Functions.OutputMessage("Please choose date for the meeting (DD-MM-YY)");
-            _date = Functions.GetString();
-
+                    Functions.OutputMessage("Please choose date for the meeting (DD-MM-YY)");
+                    string dateString = Functions.GetString();
+                    _date = DateOnly.Parse(dateString);
+                    Console.WriteLine(_date +" " + _time);
+                    throw new Exception(" ");
+                    //    string[] dateString = Functions.GetString().Split('-');
+                    //    int[] dateint = new int[3];
+                    //    for (int i = 0; i < dateString.Length; i++)
+                    //    {
+                    //        dateint[i] = Convert.ToInt32(dateString[i]);
+                    //    }
+                    //    _date = new DateOnly(dateint[0], dateint[1], dateint[2]);
+                    //    getDate = false;
+                }
+                catch(Exception e) { Console.WriteLine("Unrecognised format for date, please try again " + e.Message);getDate = true; }
+            } while (getDate);
+            
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();

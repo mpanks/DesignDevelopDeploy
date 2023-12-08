@@ -47,16 +47,16 @@ namespace Coursework
     {
         internal string _loginID { get; private set; }
         private int _AccessLvl;
-        private bool _Student;
-        public ViewProgressReports(string loginID, int AccessLvl, bool student = false)
+        private bool _Select;
+        public ViewProgressReports(string loginID, int AccessLvl, bool select = false)
         {
             _loginID = loginID;
             _AccessLvl = AccessLvl;
-            _Student = student;
+            _Select = select;
         }
         public string MenuText()
         {
-            if (_Student == true)
+            if (!_Select)
             {
                 return "View All Progress Reports";
             }
@@ -74,6 +74,7 @@ namespace Coursework
                 switch (_AccessLvl)
                 {
                     case 1:
+                        //Student views reports
                         cmd.CommandText = "SELECT Report, ConfidenceLevel FROM ProgressReports WHERE (LoginID = @loginID);";
                         cmd.Parameters.AddWithValue("@loginID", _loginID);
                         using (var sr = cmd.ExecuteReader())
@@ -85,19 +86,38 @@ namespace Coursework
                         }
                         break;
                     case 2:
-                        cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
-                            "FROM ProgressReports, UserInfo " +
-                            "WHERE (PSID = @login) " +
-                            "AND (UserInfo.loginID = ProgressReports.loginID);";
-                        cmd.Parameters.AddWithValue("@login", _loginID);
+                        if (_Select)
+                        {
+                            //Select student reports
+                            cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
+                                "FROM ProgressReports, UserInfo " +
+                                "WHERE (ProgressReports.loginID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 1)) " +
+                                "AND (UserInfo.loginID = ProgressReports.loginID) " +
+                                "AND PSID = @loginID;";
+                            string[] PSdetails = GetDetails().Split(' ');
+
+                            cmd.Parameters.AddWithValue("@fname", PSdetails[0]);
+                            cmd.Parameters.AddWithValue("@lname", PSdetails[1]);
+                        }
+                        else
+                        {
+                            //View all
+                            cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
+                                "FROM ProgressReports, UserInfo " +
+                                "WHERE PSID = @loginID " +
+                                "AND (userinfo.loginID = progressreports.loginID);";
+                        }
+                        cmd.Parameters.AddWithValue("@loginID", _loginID);
                         OutputDetails(cmd);
                         break;
                     case 3:
-                        if (_Student == true)
+                        //PS and ST views reports
+                        if (_Select)
                         {
+                            //Select student reports
                             cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
                                 "FROM ProgressReports, UserInfo " +
-                                "WHERE (PSID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 2)) " +
+                                "WHERE (PSID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND (accessLevel = 2 OR accessLevel = 3))) " +
                                 "AND (UserInfo.loginID = ProgressReports.loginID);";
                             string[] PSdetails = GetDetails().Split(' ');
 
@@ -106,6 +126,7 @@ namespace Coursework
                         }
                         else
                         {
+                            //View all
                             cmd.CommandText = "SELECT Title,FirstName, LastName, Report, ConfidenceLevel " +
                                 "FROM ProgressReports, UserInfo " +
                                 "WHERE (progressreports.loginID = (SELECT loginID FROM userInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 1)) " +
@@ -131,6 +152,11 @@ namespace Coursework
                     Functions.OutputMessage($"{sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}\n{sr.GetName(3)}: {sr.GetString(3)}\n{sr.GetName(4)}: {sr.GetString(4)}\n");
                 }
             }
+        }
+        private void StudentDetails(ref SqliteCommand cmd)
+        {
+
+            return;
         }
         private string GetDetails()
         {
