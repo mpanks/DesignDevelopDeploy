@@ -7,9 +7,6 @@ using System.Security.Cryptography;
 
 namespace Coursework
 {
-    internal class Password
-    {
-    }
     class Hashing
     {
         //TODO Encapsulate hashing class before final commit

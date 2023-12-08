@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Coursework
 {
-    internal class HomeScreen
-    {
-    }
     class userHomeScreen : ConsoleMenu, MenuItem
     {
         protected int accLvl {get; private set;}
@@ -107,7 +104,6 @@ namespace Coursework
             _menuItems.Clear();
             _menuItems.Add(new ViewProgressReports(_loginID, 2));
             _menuItems.Add(new ViewProgressReports(_loginID, 2, true));
-            //TODO add select progress reports for PS
             _menuItems.Add(new ViewMeetings(2,_loginID));
             _menuItems.Add(new ViewMeetings(2, _loginID, true));
             _menuItems.Add(new CreateMeeting(2,_loginID));
@@ -125,22 +121,20 @@ namespace Coursework
     }
     class STHomeScreen : userHomeScreen
     {
-        private string _loginID;
         public STHomeScreen(string loginID) : base(loginID)
         {
-            _loginID=loginID;
         }
         public override void CreateMenu()
         {
             _menuItems.Clear();
-            _menuItems.Add(new ViewMeetings(3, _loginID));
             _menuItems.Add(new ViewProgressReports(_loginID, 3));
             _menuItems.Add(new ViewProgressReports(_loginID, 3, true));
             _menuItems.Add(new CreateMeeting(3,_loginID));
-            //TODO add manage meeting option for ST
+            _menuItems.Add(new ViewMeetings(3, _loginID));
+            _menuItems.Add(new ViewMeetings(3,_loginID,true));
             _menuItems.Add(new ExitMenuItem(this));
         }
-        public string MenuTEext()
+        public override string MenuText()
         {
             return "Senior Tutor Home Screen";
         }

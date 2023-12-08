@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 
 namespace Coursework
 {
-    internal class Meetings
-    {
-    }
     class MeetingNotification : MenuItem
     {
         private string _loginID;
@@ -43,15 +40,15 @@ namespace Coursework
                             break;
                         case 2:
                             cmd.CommandText += "SELECT title, firstname, lastname, studentMeeting.date, studentMeeting.time, studentMeeting.location " +
-                                "FROM userinfo, studentmeeting, psmeeting " +
+                                "FROM userinfo, studentmeeting, stmeeting " +
                                 "WHERE (userInfo.loginID = studentID OR userinfo.loginID = STID) " +
-                                "AND (studentmeeting.PSID = @loginID OR psmeeting.PSID = @loginID1) " +
-                                "AND (studentmeeting.PSconfirmed = 0 OR psmeeting.psconfirmed = 0);";
+                                "AND (studentmeeting.PSID = @loginID OR stmeeting.PSID = @loginID1) " +
+                                "AND (studentmeeting.PSconfirmed = 0 OR stmeeting.psconfirmed = 0);";
                             cmd.Parameters.AddWithValue("@loginID1", _loginID);
                             break;
                         case 3:
                             cmd.CommandText += "SELECT title, firstname, lastname, date,time,location " +
-                                "FROM userinfo, PSMeeting " +
+                                "FROM userinfo, stMeeting " +
                                 "WHERE UserInfo.loginID = PSID AND STID = @loginID and STconfirmed = 0";
                             break;
                         default:
@@ -78,12 +75,12 @@ namespace Coursework
                         break;
                     case 2:
                         update.CommandText = "UPDATE studentMeeting SET PSconfirmed = 1 WHERE PSID = @loginID; " +
-                            "UPDATE PSMeeting SET PSconfirmed = 1 WHERE psid = @psid;";
-                        update.Parameters.AddWithValue("@psid", _loginID); 
+                            "UPDATE stMeeting SET PSconfirmed = 1 WHERE psid = @psid;";
+                        update.Parameters.AddWithValue("@psid", _loginID);
                         update.Parameters.AddWithValue("@loginID", _loginID);
                         break;
                     case 3:
-                        update.CommandText = "UPDATE PSMeeting set STConfirmed = 1 WHERE stid = @stid";
+                        update.CommandText = "UPDATE stMeeting set STConfirmed = 1 WHERE stid = @stid";
                         update.Parameters.AddWithValue("@stid", _loginID);
                         break;
                     default:
@@ -115,52 +112,48 @@ namespace Coursework
         public void Select()
         {
             GetMeetingDetails(_accessLevel);
-            if (CheckAvailability() && CheckRoom())
+            if (CheckAvailability())
             {
                 using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
                 {
                     connection.Open();
                     var cmd = connection.CreateCommand();
-                    cmd.CommandText = "INSERT INTO studentMeeting(studentID, PSID, location, time) VALUES(@studentID, @PSID, @location, @time);";
+                    cmd.CommandText = "INSERT INTO studentMeeting(studentID, PSID, location, date, time) VALUES(@firstID, @secondID, @location, @date, @time);";
                     switch (_accessLevel)
                     {
                         case 1:
                             //Student creates a meeting
-                            cmd.Parameters.AddWithValue("@studentID", _loginID);
-                            cmd.Parameters.AddWithValue("@PSID", _otherID);
+                            cmd.Parameters.AddWithValue("@firstID", _loginID);
+                            cmd.Parameters.AddWithValue("@secondID", _otherID);
                             break;
                         case 2:
                             //PS creates meeting
-                            cmd.Parameters.AddWithValue("@studentID", _otherID);
-                            cmd.Parameters.AddWithValue("@PSID", _loginID);
+                            cmd.Parameters.AddWithValue("@firstID", _otherID);
+                            cmd.Parameters.AddWithValue("@secondID", _loginID);
                             break;
                         case 3:
                             //ST Creates meeting
-                            cmd.Parameters.AddWithValue("@studentID", _loginID);
-                            cmd.Parameters.AddWithValue("@PSID", _otherID);
+                            cmd.Parameters.AddWithValue("@firstID", _loginID);
+                            cmd.Parameters.AddWithValue("@secondID", _otherID);
                             break;
                         default:
-                            cmd.Parameters.AddWithValue("@studentID", "-1");
-                            cmd.Parameters.AddWithValue("@PSID", "-1");
+                            cmd.Parameters.AddWithValue("@firstID", "-1");
+                            cmd.Parameters.AddWithValue("@secondID", "-1");
                             break;
                     }
-                    if (cmd.Parameters.Count > 3)
+                    cmd.Parameters.AddWithValue("@location", _location);
+                    cmd.Parameters.AddWithValue("@date", _date);
+                    cmd.Parameters.AddWithValue("@time", _time);
+
+                    if (cmd.ExecuteNonQuery() > 0)
                     {
-                        cmd.Parameters.AddWithValue("@location", _location);
-                        cmd.Parameters.AddWithValue("@time", _time);
-                        if (cmd.ExecuteNonQuery() > 0)
-                        {
-                            Functions.OutputMessage($"Meeting created for {_time} in {_location}");
-                        }
-                        else
-                        {
-                            Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
-                        }
+                        Functions.OutputMessage($"Meeting created for {_time} in {_location}");
                     }
                     else
                     {
                         Functions.OutputMessage($"Unable to create a meeting for {_time} in {_location}");
                     }
+
                 }
             }
             else
@@ -200,11 +193,11 @@ namespace Coursework
                 cmd.Parameters.AddWithValue("@time", _time);
                 if (cmd.ExecuteScalar() != null)
                 {
-                    return true;
+                    return false;
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
         }
@@ -214,37 +207,43 @@ namespace Coursework
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT location FROM studentMeeting " +
+                cmd.CommandText = "SELECT * FROM studentMeeting " +
                     "WHERE date = @date " +
                     "AND time = @time " +
-                    "AND location != 'Teams';";
+                    "AND location != 'Teams' " +
+                    "AND location = @loc;";
                 cmd.Parameters.AddWithValue("@date", _date);
                 cmd.Parameters.AddWithValue("@time", _time);
+                cmd.Parameters.AddWithValue("@loc", _location);
                 if (cmd.ExecuteScalar() != null)
                 {
-                    return true;
+                    return false;
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
         }
 
         private void GetMeetingDetails(int accLvl)
         {
-            Functions.OutputMessage("Please input other parties first name");
-            string fname = Functions.GetString();
+            string fname = "";
+            string lname = "";
+            if (accLvl != 1)
+            {
+                Functions.OutputMessage("Please input other parties first name");
+                fname = Functions.GetString();
 
-            Functions.OutputMessage("Please input other parties last name");
-            string lname = Functions.GetString();
-            do {
+                Functions.OutputMessage("Please input other parties last name");
+                lname = Functions.GetString();
+            }
+            do
+            {
                 Functions.OutputMessage("Please choose a location for the meeting (choose \"Teams\" for \"virtual\" meetings)");
                 _location = Functions.GetString();
             }
-            while(_location == null || _location == " ");
-            //TODO verify date-time inputs
-
+            while (_location == null || _location == " ");
 
             bool getDate = true;
             do
@@ -254,45 +253,49 @@ namespace Coursework
                     //TODO format date & time 
                     Functions.OutputMessage("Please choose a time for the meeting (HH:MM)");
                     string timeString = Functions.GetString();
-                    _time = TimeOnly.Parse(timeString+":00");
+                    _time = TimeOnly.Parse(timeString + ":00");
 
                     Functions.OutputMessage("Please choose date for the meeting (DD-MM-YY)");
                     string dateString = Functions.GetString();
                     _date = DateOnly.Parse(dateString);
-                    Console.WriteLine(_date +" " + _time);
-                    throw new Exception(" ");
-                    //    string[] dateString = Functions.GetString().Split('-');
-                    //    int[] dateint = new int[3];
-                    //    for (int i = 0; i < dateString.Length; i++)
-                    //    {
-                    //        dateint[i] = Convert.ToInt32(dateString[i]);
-                    //    }
-                    //    _date = new DateOnly(dateint[0], dateint[1], dateint[2]);
-                    //    getDate = false;
+                    Console.WriteLine(_date + " " + _time);
+                    getDate = false;
                 }
-                catch(Exception e) { Console.WriteLine("Unrecognised format for date, please try again " + e.Message);getDate = true; }
+                catch (Exception e) { Console.WriteLine("Unrecognised format for date, please try again " + e.Message); getDate = true; }
             } while (getDate);
-            
+
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = @accLvl;";
-                cmd.Parameters.AddWithValue("@fname", fname);
-                cmd.Parameters.AddWithValue("@lname", lname);
-                int accessLvl = 0;
+
                 switch (accLvl)
                 {
                     case 1:
-                        accessLvl = 2;
+                        //Student doesn't need to search for PS
+                        cmd.CommandText = "SELECT PSID FROM PSAllocation WHERE studentID = @loginID;";
                         break;
                     case 2:
-                        accessLvl = 1;
+                        cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = @accLvl " +
+                                          "AND loginID IN (SELECT StudentID FROM PSAllocation WHERE PSID = @loginID);";
+
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        cmd.Parameters.AddWithValue("@accLvl", 1);
+                        break;
+                    case 3:
+                        cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = @accLvl " +
+                            "AND loginID IN (SELECT PSID FROM STAllocation WHERE STID = @loginID);";
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        cmd.Parameters.AddWithValue("@accLvl", 2);
                         break;
                     default:
+                        //Should never happen
+                        Console.WriteLine("Error, Please try again");
                         break;
                 }
-                cmd.Parameters.AddWithValue("@accLvl", accessLvl);
+                cmd.Parameters.AddWithValue("@loginID", _loginID);
 
                 using (var sr = cmd.ExecuteReader())
                 {
@@ -358,17 +361,22 @@ namespace Coursework
                         }
                         using (var sr = cmd.ExecuteReader())
                         {
-
+                            //TODO Actaully finish ????
                         }
-                            break;
+                        break;
                     case 3:
                         cmd.CommandText = "SELECT firstName, lastName, Title, location, date, time " +
-                        "FROM PSMeeting, UserInfo " +
+                        "FROM stMeeting, UserInfo " +
                         "WHERE STID = @loginID AND PSID = UserInfo.loginID; ";
 
                         if (_select)
                         {
-                            cmd.CommandText += "AND PSID = (SELECT LoginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = 2);";
+                            cmd.CommandText += "AND PSID = " +
+                                "(SELECT LoginID " +
+                                "FROM UserInfo " +
+                                "WHERE firstname = @fname " +
+                                "AND lastname = @lname " +
+                                "AND accessLevel = 2) ;";
                             string fname = Functions.GetString("Please input Personal Supervisors first name");
                             string lname = Functions.GetString("Please input Personal Supervisors last name");
 

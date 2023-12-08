@@ -8,9 +8,6 @@ using System.Threading.Tasks;
 
 namespace Coursework
 {
-    internal class ProgressReports
-    {
-    }
     class AddProgressReport : MenuItem
     {
         internal string _loginID { get; private set; }
@@ -28,13 +25,14 @@ namespace Coursework
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                cmd.CommandText = "INSERT INTO ProgressReports(LoginID, ConfidenceLevel, Report) VALUES(@LoginID, @ConfidenceLevel, @Report);";
+                cmd.CommandText = "INSERT INTO ProgressReports(LoginID, ConfidenceLevel, Report, PSID) VALUES(@loginID, @ConfidenceLevel, @Report, " +
+                    "(SELECT PSID FROM PSAllocation WHERE StudentID = @loginID));";
 
                 Functions.OutputMessage("Please write a quick overview for how you've managed with the previous month");
                 string report = Functions.GetString();
                 int confLvl = Functions.GetIntegerInRange(1, 5, "Please select your conficence level between 1 and 5");
 
-                cmd.Parameters.AddWithValue("@LoginID", _loginID);
+                cmd.Parameters.AddWithValue("@loginID", _loginID);
                 cmd.Parameters.AddWithValue("@Report", report);
                 cmd.Parameters.AddWithValue("@ConfidenceLevel", confLvl);
 
@@ -93,7 +91,7 @@ namespace Coursework
                                 "FROM ProgressReports, UserInfo " +
                                 "WHERE (ProgressReports.loginID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 1)) " +
                                 "AND (UserInfo.loginID = ProgressReports.loginID) " +
-                                "AND PSID = @loginID;";
+                                "AND ProgressReports.PSID = @loginID;";
                             string[] PSdetails = GetDetails().Split(' ');
 
                             cmd.Parameters.AddWithValue("@fname", PSdetails[0]);
@@ -104,7 +102,7 @@ namespace Coursework
                             //View all
                             cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
                                 "FROM ProgressReports, UserInfo " +
-                                "WHERE PSID = @loginID " +
+                                "WHERE ProgressReports.PSID = @loginID " +
                                 "AND (userinfo.loginID = progressreports.loginID);";
                         }
                         cmd.Parameters.AddWithValue("@loginID", _loginID);
@@ -117,7 +115,8 @@ namespace Coursework
                             //Select student reports
                             cmd.CommandText = "SELECT Title, FirstName, LastName, Report, ConfidenceLevel " +
                                 "FROM ProgressReports, UserInfo " +
-                                "WHERE (PSID = (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND (accessLevel = 2 OR accessLevel = 3))) " +
+                                "WHERE (progressReports.loginID IN (SELECT loginID from UserInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel=1)) " +
+                                "AND PSID = (SELECT PSID FROM STAllocation WHERE STID = @loginID AND PSID = (SELECT PSID FROM PSAllocation WHERE StudentID = progressReports.loginID) ) " +
                                 "AND (UserInfo.loginID = ProgressReports.loginID);";
                             string[] PSdetails = GetDetails().Split(' ');
 
@@ -129,13 +128,10 @@ namespace Coursework
                             //View all
                             cmd.CommandText = "SELECT Title,FirstName, LastName, Report, ConfidenceLevel " +
                                 "FROM ProgressReports, UserInfo " +
-                                "WHERE (progressreports.loginID = (SELECT loginID FROM userInfo WHERE FirstName = @fname AND LastName = @lname AND accessLevel = 1)) " +
+                                "WHERE (progressreports.PSID = (SELECT PSID FROM PSAllocation WHERE PSID = (SELECT PSID FROM STAllocation WHERE STID = @loginID))) " +
                                 "AND (userinfo.loginID = progressreports.loginID);";
-                            string[] StudentDetails = GetDetails().Split(" ");
-
-                            cmd.Parameters.AddWithValue("@fname", StudentDetails[0]);
-                            cmd.Parameters.AddWithValue("@lname", StudentDetails[1]);
                         }
+                        cmd.Parameters.AddWithValue("@loginID", _loginID);
                         OutputDetails(cmd);
                         break;
                     default:

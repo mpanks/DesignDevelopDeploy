@@ -9,10 +9,6 @@ using Microsoft.Data.Sqlite;
 
 namespace Coursework
 {
-    internal class FileHandling
-    {
-    }
-
     class FileHandler : ConsoleMenu
     {
 

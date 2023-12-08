@@ -14,23 +14,6 @@ namespace Coursework
             //{
             //    sqlConnection.Open();
             //    var cmd = sqlConnection.CreateCommand();
-
-            //    cmd.CommandText = "Create Table ST(PSID TEXT NOT NULL, " +
-            //        "meetingID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-            //        "STID TEXT NOT NULL, " +
-            //        "location TEXT NOT NULL, " +
-            //        "time TEXT NOT NULL, " +
-            //        "date TEXT NOT NULL, " +
-            //        "PSConfirmed INT, " +
-            //        "STConfirmed, " +
-            //        "FOREIGN KEY(STID) " +
-            //        " REFERENCES UserLogin(LoginID) " +
-            //        " ON UPDATE CASCADE " +
-            //        " ON DELETE CASCADE, " +
-            //        "FOREIGN KEY(PSID) " +
-            //        " REFERENCES UserLogin(LoginID) " +
-            //        " ON UPDATE CASCADE " +
-            //        " ON DELETE CASCADE);";
             //    //Hashing hash = new Hashing();
             //    //string salt = hash.GenerateSalt();
             //    //string password = hash.GenerateHash("password", salt);
