@@ -82,7 +82,7 @@ namespace Coursework
             _menuItems.Add(new ViewProgressReports(_loginID, 1));
             _menuItems.Add(new ViewMeetings(1, _loginID));
             _menuItems.Add(new CreateMeeting(1, _loginID));
-            //TODO add manage meeting option for Student
+            _menuItems.Add(new ManageMeetings(1, _loginID));
             _menuItems.Add(new ExitMenuItem(this)); 
         }
         public override string MenuText()
@@ -107,7 +107,7 @@ namespace Coursework
             _menuItems.Add(new ViewMeetings(2,_loginID));
             _menuItems.Add(new ViewMeetings(2, _loginID, true));
             _menuItems.Add(new CreateMeeting(2,_loginID));
-            _menuItems.Add(new ManageMeetings(_loginID));
+            _menuItems.Add(new ManageMeetings(2,_loginID));
             _menuItems.Add(new ExitMenuItem(this));
         }
         public override string MenuText()
@@ -132,6 +132,7 @@ namespace Coursework
             _menuItems.Add(new CreateMeeting(3,_loginID));
             _menuItems.Add(new ViewMeetings(3, _loginID));
             _menuItems.Add(new ViewMeetings(3,_loginID,true));
+            _menuItems.Add(new ManageMeetings(3,_loginID));
             _menuItems.Add(new ExitMenuItem(this));
         }
         public override string MenuText()
