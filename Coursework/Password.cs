@@ -10,8 +10,8 @@ namespace Coursework
     class Hashing
     {
         //TODO Encapsulate hashing class before final commit
-        internal string _salt { get; private set; }
-        internal string _hash { get; private set; }
+        private string _salt;
+        private string _hash;
         public Hashing() { }
         private string GenerateSalt()
         {

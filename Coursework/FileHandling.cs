@@ -43,6 +43,7 @@ namespace Coursework
                 var cmd = connection.CreateCommand();
                 cmd.CommandText = @"SELECT * FROM UserLogin WHERE loginID=$ID;";
                 cmd.Parameters.AddWithValue("$ID", _loginID);
+
                 string hash = "";
                 string salt = "";
                 Functions.OutputMessage("Please enter password");

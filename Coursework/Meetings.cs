@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 
 namespace Coursework
@@ -148,8 +149,133 @@ namespace Coursework
             }
         }
     }
+    class MeetingClass
+    {
+        public MeetingClass()
+        { }
+        protected bool checkPS(SqliteCommand cmd, ref string PSID, ref string _dateString, ref TimeOnly _time, string meetingID = "-1")
+        {
+            cmd.CommandText = "SELECT meetingID FROM studentMeeting " +
+            "WHERE PSID = @PSID " +
+            "AND date = @date " +
+            "AND time = @time " +
+            "AND meetingID != @meetingID;";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@PSID", PSID);
+            cmd.Parameters.AddWithValue("@date", _dateString);
+            cmd.Parameters.AddWithValue("@time", _time+":00");
+            cmd.Parameters.AddWithValue("@meetingID", meetingID);
 
-    class CreateMeeting : MenuItem
+            if (cmd.ExecuteScalar() != null)
+            {
+                return false;
+            }
+            else
+            {
+                cmd.CommandText = "SELECT * FROM stMeeting " +
+                "WHERE PSID = @PSID " +
+                "AND date = @date " +
+                "AND time = @time " +
+                "AND meetingID != @meetingID;";
+
+                if (cmd.ExecuteScalar() != null)
+                {
+                    return false;
+                }
+                else return true;
+            }
+        }
+        protected bool checkST(SqliteCommand cmd, ref string STID, ref string _dateString, ref TimeOnly _time, string meetingID = "-1")
+        {
+            cmd.CommandText = "SELECT * FROM STMeeting " +
+            "WHERE PSID = @STID " +
+            "AND date = @date " +
+            "AND time = @time " +
+            "AND meetingID != @meetingID;";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@STID", STID);
+            cmd.Parameters.AddWithValue("@date", _dateString);
+            cmd.Parameters.AddWithValue("@time", _time+":00");
+            cmd.Parameters.AddWithValue("@meetingID", meetingID);
+
+            if (cmd.ExecuteScalar() != null)
+            {
+                return false;
+            }
+            else return true;
+        }
+        protected bool checkStudent(SqliteCommand cmd, ref string studentID, ref string _dateString, ref TimeOnly _time, string meetingID = "-1")
+        {
+            cmd.CommandText = "SELECT meetingID FROM studentMeeting " +
+            "WHERE studentID = @studentID " +
+            "AND date = @date " +
+            "AND time = @time " +
+            "AND meetingID != @meetingID;";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("@studentID", studentID);
+            cmd.Parameters.AddWithValue("@date", _dateString);
+            cmd.Parameters.AddWithValue("@time", _time + ":00");
+            cmd.Parameters.AddWithValue("@meetingID", meetingID);
+
+            if (cmd.ExecuteScalar() != null)
+            {
+                return false;
+            }
+            else return true;
+        }
+        protected string getOtherID(ref string fname, ref string lname, ref int accLvl, ref string _loginID)
+        {
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+
+                switch (accLvl)
+                {
+                    case 1:
+                        //Student doesn't need to search for PS
+                        cmd.CommandText = "SELECT PSID FROM PSAllocation WHERE studentID = @loginID;";
+                        break;
+                    case 2:
+                        cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname " +
+                                          "AND (loginID IN (SELECT StudentID FROM PSAllocation WHERE PSID = @loginID) " +
+                                          "OR loginID IN (SELECT STID FROM STAllocation WHERE PSID = @loginID));";
+
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        //cmd.Parameters.AddWithValue("@accLvl", 1);
+                        break;
+                    case 3:
+                        cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = 2 " +
+                            "AND loginID IN (SELECT PSID FROM STAllocation WHERE STID = @loginID);";
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@lname", lname);
+                        //cmd.Parameters.AddWithValue("@accLvl", 2);
+                        break;
+                    default:
+                        //Should never happen
+                        Console.WriteLine("Error, Please try again");
+                        break;
+                }
+                cmd.Parameters.AddWithValue("@loginID", _loginID);
+                string _otherID = "-1";
+                using (var sr = cmd.ExecuteReader())
+                {
+                    while (sr.Read())
+                    {
+                        _otherID = sr.GetString(0);
+                    }
+                }
+                if (_otherID == null)
+                {
+                    Functions.OutputMessage("Unrecognised user, please check the spelling of the name and try again");
+                }
+                connection.Close();
+                return _otherID;
+            }
+        }
+    }
+    class CreateMeeting : MeetingClass, MenuItem
     {
         //TODO clean up variables
         private int _accessLevel;
@@ -246,69 +372,7 @@ namespace Coursework
             }
             else { Functions.OutputMessage("Cannot find other party in database"); }
         }
-        private bool checkPS(SqliteCommand cmd, ref string PSID)
-        {
-            cmd.CommandText = "SELECT meetingID FROM studentMeeting " +
-            "WHERE PSID = @PSID " +
-            "AND date = @date " +
-            "AND time = @time;";
-            cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@PSID", PSID);
-            cmd.Parameters.AddWithValue("@date", dateString);
-            cmd.Parameters.AddWithValue("@time", _time);
 
-            if (cmd.ExecuteScalar() != null)
-            {
-                return false;
-            }
-            else
-            {
-                cmd.CommandText = "SELECT meetingID FROM stMeeting " +
-                "WHERE PSID = @PSID " +
-                "AND date = @date " +
-                "AND time = @time;";
-
-                if (cmd.ExecuteScalar() != null)
-                {
-                    return false;
-                }
-                else return true;
-            }
-        }
-        private bool checkST(SqliteCommand cmd, ref string STID)
-        {
-            cmd.CommandText = "SELECT * FROM STMeeting " +
-            "WHERE PSID = @STID " +
-            "AND date = @date " +
-            "AND time = @time;";
-            cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@STID", STID);
-            cmd.Parameters.AddWithValue("@date", dateString);
-            cmd.Parameters.AddWithValue("@time", _time);
-
-            if (cmd.ExecuteScalar() != null)
-            {
-                return false;
-            }
-            else return true;
-        }
-        private bool checkStudent(SqliteCommand cmd, ref string studentID)
-        {
-            cmd.CommandText = "SELECT meetingID FROM studentMeeting " +
-            "WHERE studentID = @studentID " +
-            "AND date = @date " +
-            "AND time = @time;";
-            cmd.Parameters.Clear();
-            cmd.Parameters.AddWithValue("@studentID", studentID);
-            cmd.Parameters.AddWithValue("@date", dateString);
-            cmd.Parameters.AddWithValue("@time", _time);
-
-            if (cmd.ExecuteScalar() != null)
-            {
-                return false;
-            }
-            else return true;
-        }
         private bool CheckAvailability()
         {
             //TODO modify to check BOTH tables for PS before inserting new meeting
@@ -316,26 +380,28 @@ namespace Coursework
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
-                string otherID = string.Empty;
-                string ID = string.Empty;
 
-                cmd.Parameters.AddWithValue("@firstID", _loginID);
-                cmd.Parameters.AddWithValue("@secondID", _otherID);
-                cmd.Parameters.AddWithValue("@date", dateString);
-                cmd.Parameters.AddWithValue("@location", _location);
-                cmd.Parameters.AddWithValue("@time", _time);
+                //MeetingClass CAC = new MeetingClass(ref dateString, ref _time);
+                //string otherID = string.Empty;
+                //string ID = string.Empty;
+
+                //cmd.Parameters.AddWithValue("@firstID", _loginID);
+                //cmd.Parameters.AddWithValue("@secondID", _otherID);
+                //cmd.Parameters.AddWithValue("@date", dateString);
+                //cmd.Parameters.AddWithValue("@location", _location);
+                //cmd.Parameters.AddWithValue("@time", _time);
                 switch (_accessLevel)
                 {
                     case 1:
                         //Student books meeting
                         //checks PS availability in student meeting
-                        if (!checkStudent(cmd, ref _loginID))
+                        if (!checkStudent(cmd, ref _loginID, ref dateString, ref _time))
                         {
                             //student is unavailabile
                             return false;
                         }
                         //checks ps availability in STMeeting
-                        if(!checkPS(cmd, ref _otherID))
+                        if (!checkPS(cmd, ref _otherID, ref dateString, ref _time))
                         {
                             //PS is available
                             return false;
@@ -345,16 +411,16 @@ namespace Coursework
                         //PS book meeting
                         //TODO check room availability outside of participents
                         //checks PS availability in stMeeting
-                        if(!checkPS(cmd, ref _loginID))
+                        if (!checkPS(cmd, ref _loginID, ref dateString, ref _time))
                         {
                             //PS is unavailable
                             return false;
                         }
                         //Checks other users availability in student/stmeeting
-                        if(!checkST(cmd, ref _otherID))
+                        if (!checkST(cmd, ref _otherID, ref dateString, ref _time))
                         {
                             //ST is unavailable
-                            if(!checkStudent(cmd, ref _otherID))
+                            if (!checkStudent(cmd, ref _otherID, ref dateString, ref _time))
                             {
                                 //Student is unavailable
                                 return false;
@@ -363,17 +429,14 @@ namespace Coursework
                         break;
                     case 3:
                         //ST book meeting
-                        ID = "ST";
-                        otherID = "ST";
-
                         //Checks PS availability in stmeeting
-                        if(!checkPS(cmd, ref _otherID))
+                        if (!checkPS(cmd, ref _otherID, ref dateString, ref _time))
                         {
                             //PS is unavailable
                             return false;
                         }
                         //Checks own availability
-                        if (!checkST(cmd, ref _loginID))
+                        if (!checkST(cmd, ref _loginID, ref dateString, ref _time))
                         {
                             //ST is unavailable
                             return false;
@@ -446,56 +509,11 @@ namespace Coursework
                         }
                     }
 
-
-                    using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+                    _otherID = getOtherID(ref fname, ref lname, ref accLvl, ref _loginID);
+                    if (_otherID == "-1")
                     {
-                        connection.Open();
-                        var cmd = connection.CreateCommand();
-
-                        switch (accLvl)
-                        {
-                            case 1:
-                                //Student doesn't need to search for PS
-                                cmd.CommandText = "SELECT PSID FROM PSAllocation WHERE studentID = @loginID;";
-                                break;
-                            case 2:
-                                cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname " +
-                                                  "AND (loginID IN (SELECT StudentID FROM PSAllocation WHERE PSID = @loginID) " +
-                                                  "OR loginID IN (SELECT STID FROM STAllocation WHERE PSID = @loginID));";
-
-                                cmd.Parameters.AddWithValue("@fname", fname);
-                                cmd.Parameters.AddWithValue("@lname", lname);
-                                //cmd.Parameters.AddWithValue("@accLvl", 1);
-                                break;
-                            case 3:
-                                cmd.CommandText = "SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname AND accessLevel = 2 " +
-                                    "AND loginID IN (SELECT PSID FROM STAllocation WHERE STID = @loginID);";
-                                cmd.Parameters.AddWithValue("@fname", fname);
-                                cmd.Parameters.AddWithValue("@lname", lname);
-                                //cmd.Parameters.AddWithValue("@accLvl", 2);
-                                break;
-                            default:
-                                //Should never happen
-                                Console.WriteLine("Error, Please try again");
-                                break;
-                        }
-                        cmd.Parameters.AddWithValue("@loginID", _loginID);
-
-                        using (var sr = cmd.ExecuteReader())
-                        {
-                            while (sr.Read())
-                            {
-                                _otherID = sr.GetString(0);
-                            }
-                        }
-                        if (_otherID == null)
-                        {
-                            check = true;
-                            Functions.OutputMessage("Unrecognised user, please check the spelling of the name and try again");
-                        }
-                        connection.Close();
+                        check = true;
                     }
-
                 } while (check);
             }
             else
@@ -555,7 +573,7 @@ namespace Coursework
             }
             else
             {
-                if (_accessLevel == 1)
+                if (_accessLevel == 2)
                 {
                     return "Select Student Meetings";
                 }
@@ -592,7 +610,7 @@ namespace Coursework
                         "WHERE PSID = @loginID AND studentID = UserInfo.loginID ";
                         if (_select)
                         {
-                            cmd.CommandText += "AND studentID = (SELECT loginID FROM UserIndo WHERE firstname = @fname AND lastname = @lname " +
+                            cmd.CommandText += "AND studentID = (SELECT loginID FROM UserInfo WHERE firstname = @fname AND lastname = @lname " +
                                 "AND loginID IN (SELECT StudentID FROM PSAllocation WHERE PSID = @loginID));";
                             Functions.OutputMessage("Please input students firstname");
                             string fname = Functions.GetString();
@@ -671,11 +689,13 @@ namespace Coursework
             }
         }
     }
-    class ManageMeetings : MenuItem
+    class ManageMeetings : MeetingClass, MenuItem
     {
         private string _loginID;
         private int _accLvl;
         private TimeOnly _time;
+        private string dateString;
+        private string _otherID;
         public ManageMeetings(int accLvl, string loginID)
         {
             _loginID = loginID;
@@ -691,7 +711,7 @@ namespace Coursework
             //Prompts PS to choose between editing/changing meeting, deleting/cancelling meeting and exiting (return to home screen)
             //TODO test PSs can manage both student and ST meetings
             int selection = 0;
-            string meetingID = GetMeeting(ref selection);
+            string meetingID = GetMeeting(ref selection, ref _otherID);
             if (meetingID != "")
             {
                 using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
@@ -751,6 +771,7 @@ namespace Coursework
                         case 2:
                             //Update meeting
                             bool run = true;
+
                             do
                             {
                                 cmd.CommandText = $"UPDATE {table}Meeting " +
@@ -758,32 +779,34 @@ namespace Coursework
                                     "time = @time, " +
                                     "date = @date " +
                                     "WHERE meetingID = @meetingID; ";
-                                // $"AND {ID}ID = @loginID;";
                                 cmd.Parameters.AddWithValue("@location", Functions.GetString("Please select desired location (\"Teams\" for virtual meetings)"));
 
-                                TimeOnly time = new TimeOnly();
+                                //TimeOnly time = new TimeOnly();
                                 string dateString = string.Empty;
-                                DateTimeValidation.ValidateDateTime(ref time, ref dateString);
-
-                                cmd.Parameters.AddWithValue("@time", time);
-                                cmd.Parameters.AddWithValue("@date", dateString);
-                                cmd.Parameters.AddWithValue("@meetingID", meetingID);
-                                //cmd.Parameters.AddWithValue("@loginID", _loginID);
-                                if (cmd.ExecuteNonQuery() > 0)
+                                DateTimeValidation.ValidateDateTime(ref _time, ref dateString);
+                                if (CheckAvailability(ref dateString, ref _accLvl, ref _otherID, ref meetingID) && dateString !="")
                                 {
-                                    cmd.ExecuteNonQuery();
-                                    Functions.OutputMessage("Meeting updated");
-                                    run = false;
+                                    cmd.Parameters.AddWithValue("@time", _time);
+                                    cmd.Parameters.AddWithValue("@date", dateString);
+                                    cmd.Parameters.AddWithValue("@meetingID", meetingID);
+                                    //cmd.Parameters.AddWithValue("@loginID", _loginID);
+                                    if (cmd.ExecuteNonQuery() > 0)
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        Functions.OutputMessage("Meeting updated");
+                                        run = false;
+                                    }
+                                    else
+                                    {
+                                        Functions.OutputMessage("Meeting was not able to be updated, please try again");
+                                    }
                                 }
-                                else
-                                {
-                                    Functions.OutputMessage("Meeting was not able to be updated, please try again");
-                                }
+                                else if (dateString != "") Functions.OutputMessage("Selected time slot is unavailable");
                             } while (run);
+
                             return;
                         case 3:
-                            //User exits, no modification
-                            return;
+                        //User exits, no modification
                         default:
                             //Some other input is received, should never happen
                             return;
@@ -791,26 +814,27 @@ namespace Coursework
                 }
             }
         }
-        private string GetMeeting(ref int selection)
+        private string GetMeeting(ref int selection, ref string _otherID)
         {
             bool run = true;
             string meetingID = string.Empty;
 
             do
             {
-                string[] time_date = new string[2];
+                //string[] time_date = new string[2];
                 selection = 0;
                 if (_accLvl == 2)
                 {
                     selection = Functions.GetIntegerInRange(1, 3, "Please choose:\n1. Select Student meeting\n2. Select Senior Tutor meeting \n3. Exit");
-                    if (selection != 3) time_date = SelectMeetingDetails().Split(" ");
+                    if (selection != 3) DateTimeValidation.ValidateDateTime(ref _time, ref dateString);
                 }
                 else
                 {
-                    time_date = SelectMeetingDetails().Split(" ");
+                    //time_date = SelectMeetingDetails().Split(" ");
+                    DateTimeValidation.ValidateDateTime(ref _time, ref dateString);
                 }
 
-                if (time_date[1] != "")
+                if (dateString != "")
                 {
                     using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
                     {
@@ -822,7 +846,7 @@ namespace Coursework
                             case 1:
                                 //Student manage meetings
                                 //Can only manage PS meetings
-                                cmd.CommandText = "SELECT Title, Firstname, Lastname, Location, Date, Time, MeetingID " +
+                                cmd.CommandText = "SELECT Title, Firstname, Lastname, Location, Date, Time, MeetingID, PSID " +
                                     "FROM studentMeeting, UserInfo " +
                                     "WHERE date=@date " +
                                     "AND time = @time " +
@@ -836,7 +860,8 @@ namespace Coursework
                                 switch (selection)
                                 {
                                     case 1:
-                                        cmd.CommandText = "SELECT title, firstname, lastname, location, date, time, meetingID " +
+                                        //PS manages student meeting
+                                        cmd.CommandText = "SELECT title, firstname, lastname, location, date, time, meetingID, studentID " +
                                         "FROM studentMeeting, UserInfo " +
                                         "WHERE date=@date " +
                                         "AND time = @time " +
@@ -844,7 +869,8 @@ namespace Coursework
                                         "AND UserInfo.loginID = studentID;";
                                         break;
                                     case 2:
-                                        cmd.CommandText = "Select Title, Firstname, Lastname, Location, Date, Time, MeetingID " +
+                                        //PS manages ST meeting
+                                        cmd.CommandText = "Select Title, Firstname, Lastname, Location, Date, Time, MeetingID, stID " +
                                             "FROM STMeeting, UserInfo " +
                                             "WHERE date=@date " +
                                             "AND time = @time " +
@@ -861,7 +887,7 @@ namespace Coursework
                             case 3:
                                 //ST manage meetings
                                 //can manage PS meetings
-                                cmd.CommandText = "SELECT Title, Firstname, Lastname, Location, Date, Time, MeetingID " +
+                                cmd.CommandText = "SELECT Title, Firstname, Lastname, Location, Date, Time, MeetingID, PSID " +
                                     "FROM STmeeting, UserInfo " +
                                     "WHERE date=@date " +
                                     "AND time = @time " +
@@ -874,8 +900,8 @@ namespace Coursework
                                 break;
                         }
 
-                        cmd.Parameters.AddWithValue("@time", time_date[0] + ":00");
-                        cmd.Parameters.AddWithValue("@date", time_date[1]);
+                        cmd.Parameters.AddWithValue("@time", _time + ":00");
+                        cmd.Parameters.AddWithValue("@date", dateString);
                         cmd.Parameters.AddWithValue("@loginID", _loginID);
                         if (cmd.ExecuteScalar() != null)
                         {
@@ -886,6 +912,7 @@ namespace Coursework
                                     Functions.OutputMessage("You have selected the meeting with: " +
                                         $"{sr.GetString(0)} {sr.GetString(1)} {sr.GetString(2)}\nlocation: {sr.GetString(3)}\nOn: {sr.GetString(4)}\nAt: {sr.GetString(5)}");
                                     meetingID = sr.GetString(6);
+                                    _otherID = sr.GetString(7);
                                 }
                                 run = false;
                             }
@@ -897,13 +924,70 @@ namespace Coursework
             } while (run);
             return meetingID;
         }
-        private string SelectMeetingDetails()
+        private bool CheckAvailability(ref string dateString, ref int _accessLevel, ref string _otherID, ref string meetingID)
         {
-            string date = string.Empty;
-            DateTimeValidation.ValidateDateTime(ref _time, ref date);
-            //string date = _date.ToString("yyyy-mm-dd h:mm");
-            string output = $"{_time} {date}";
-            return output;
+            using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
+            {
+                connection.Open();
+                var cmd = connection.CreateCommand();
+
+                switch (_accessLevel)
+                {
+                    case 1:
+                        //Student books meeting
+                        //checks PS availability in student meeting
+                        if (!checkStudent(cmd, ref _loginID, ref dateString, ref _time, meetingID))
+                        {
+                            //student is unavailabile
+                            return false;
+                        }
+                        //checks ps availability in STMeeting
+                        if (!checkPS(cmd, ref _otherID, ref dateString, ref _time, meetingID))
+                        {
+                            //PS is available
+                            return false;
+                        }
+                        break;
+                    case 2:
+                        //PS book meeting
+                        //checks PS availability in stMeeting
+                        if (!checkPS(cmd, ref _loginID, ref dateString, ref _time, meetingID))
+                        {
+                            //PS is unavailable
+                            return false;
+                        }
+                        //Checks other users availability in student/stmeeting
+                        if (!checkST(cmd, ref _otherID, ref dateString, ref _time, meetingID))
+                        {
+                            //ST is unavailable
+                            if (!checkStudent(cmd, ref _otherID, ref dateString, ref _time, meetingID))
+                            {
+                                //Student is unavailable
+                                return false;
+                            }
+                        }
+                        break;
+                    case 3:
+                        //ST book meeting
+                        //Checks PS availability in stmeeting
+                        if (!checkPS(cmd, ref _otherID, ref dateString, ref _time, meetingID))
+                        {
+                            //PS is unavailable
+                            return false;
+                        }
+                        //Checks own availability
+                        if (!checkST(cmd, ref _loginID, ref dateString, ref _time, meetingID))
+                        {
+                            //ST is unavailable
+                            return false;
+                        }
+                        break;
+                    default:
+                        //Shoudln't happen
+                        return false;
+                }
+                return true;
+            }
         }
     }
 }
