@@ -163,7 +163,7 @@ namespace Coursework
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@PSID", PSID);
             cmd.Parameters.AddWithValue("@date", _dateString);
-            cmd.Parameters.AddWithValue("@time", _time+":00");
+            cmd.Parameters.AddWithValue("@time", _time + ":00");
             cmd.Parameters.AddWithValue("@meetingID", meetingID);
 
             if (cmd.ExecuteScalar() != null)
@@ -185,6 +185,44 @@ namespace Coursework
                 else return true;
             }
         }
+        protected bool checkRoom(SqliteCommand cmd, ref string roomName, ref string _dateString, ref TimeOnly _time, string meetingID = "-1")
+        {
+            if (roomName.ToLower() != "teams")
+            {
+                //Check room is available
+                cmd.Parameters.Clear();
+
+                cmd.CommandText = "SELECT meetingID FROM studentMeeting " +
+                "WHERE location = @location " +
+                "AND date = @date " +
+                "AND time = @time " +
+                "AND meetingID != @meetingID;";
+                cmd.Parameters.AddWithValue("@location", roomName);
+                cmd.Parameters.AddWithValue("@date", _dateString);
+                cmd.Parameters.AddWithValue("@time", _time + ":00");
+                cmd.Parameters.AddWithValue("@meetingID", meetingID);
+
+                if (cmd.ExecuteScalar() != null)
+                {
+                    return false;
+                }
+                else
+                {
+                    cmd.CommandText = "SELECT * FROM stMeeting " +
+                    "WHERE location = @location " +
+                    "AND date = @date " +
+                    "AND time = @time " +
+                    "AND meetingID != @meetingID;";
+
+                    if (cmd.ExecuteScalar() != null)
+                    {
+                        return false;
+                    }
+                    else { return true; }
+                }
+            }
+            else return true; //Teams isn't a room, doesn't have availability restrictions
+        }
         protected bool checkST(SqliteCommand cmd, ref string STID, ref string _dateString, ref TimeOnly _time, string meetingID = "-1")
         {
             cmd.CommandText = "SELECT * FROM STMeeting " +
@@ -195,7 +233,7 @@ namespace Coursework
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@STID", STID);
             cmd.Parameters.AddWithValue("@date", _dateString);
-            cmd.Parameters.AddWithValue("@time", _time+":00");
+            cmd.Parameters.AddWithValue("@time", _time + ":00");
             cmd.Parameters.AddWithValue("@meetingID", meetingID);
 
             if (cmd.ExecuteScalar() != null)
@@ -375,21 +413,11 @@ namespace Coursework
 
         private bool CheckAvailability()
         {
-            //TODO modify to check BOTH tables for PS before inserting new meeting
             using (var connection = new SqliteConnection("Data Source = DDD_CW.db"))
             {
                 connection.Open();
                 var cmd = connection.CreateCommand();
 
-                //MeetingClass CAC = new MeetingClass(ref dateString, ref _time);
-                //string otherID = string.Empty;
-                //string ID = string.Empty;
-
-                //cmd.Parameters.AddWithValue("@firstID", _loginID);
-                //cmd.Parameters.AddWithValue("@secondID", _otherID);
-                //cmd.Parameters.AddWithValue("@date", dateString);
-                //cmd.Parameters.AddWithValue("@location", _location);
-                //cmd.Parameters.AddWithValue("@time", _time);
                 switch (_accessLevel)
                 {
                     case 1:
@@ -409,7 +437,6 @@ namespace Coursework
                         break;
                     case 2:
                         //PS book meeting
-                        //TODO check room availability outside of participents
                         //checks PS availability in stMeeting
                         if (!checkPS(cmd, ref _loginID, ref dateString, ref _time))
                         {
@@ -696,6 +723,7 @@ namespace Coursework
         private TimeOnly _time;
         private string dateString;
         private string _otherID;
+        private string _location;
         public ManageMeetings(int accLvl, string loginID)
         {
             _loginID = loginID;
@@ -709,7 +737,6 @@ namespace Coursework
         {
             //PS Selects meeting - search by date and time
             //Prompts PS to choose between editing/changing meeting, deleting/cancelling meeting and exiting (return to home screen)
-            //TODO test PSs can manage both student and ST meetings
             int selection = 0;
             string meetingID = GetMeeting(ref selection, ref _otherID);
             if (meetingID != "")
@@ -779,12 +806,13 @@ namespace Coursework
                                     "time = @time, " +
                                     "date = @date " +
                                     "WHERE meetingID = @meetingID; ";
-                                cmd.Parameters.AddWithValue("@location", Functions.GetString("Please select desired location (\"Teams\" for virtual meetings)"));
+                                _location = Functions.GetString("Please select desired location (\"Teams\" for virtual meetings");
+                                cmd.Parameters.AddWithValue("@location", _location);
 
                                 //TimeOnly time = new TimeOnly();
                                 string dateString = string.Empty;
                                 DateTimeValidation.ValidateDateTime(ref _time, ref dateString);
-                                if (CheckAvailability(ref dateString, ref _accLvl, ref _otherID, ref meetingID) && dateString !="")
+                                if (CheckAvailability(ref dateString, ref _accLvl, ref _otherID, ref meetingID) && dateString != "")
                                 {
                                     cmd.Parameters.AddWithValue("@time", _time);
                                     cmd.Parameters.AddWithValue("@date", dateString);
@@ -938,13 +966,21 @@ namespace Coursework
                         //checks PS availability in student meeting
                         if (!checkStudent(cmd, ref _loginID, ref dateString, ref _time, meetingID))
                         {
-                            //student is unavailabile
+                            //student or room is unavailabile
+                            Functions.OutputMessage($"You are unavailable at the given time {_time} on {dateString}");
                             return false;
                         }
-                        //checks ps availability in STMeeting
-                        if (!checkPS(cmd, ref _otherID, ref dateString, ref _time, meetingID))
+                        //Checks room availability
+                        else if (!checkRoom(cmd, ref _location, ref dateString, ref _time, meetingID))
+                        {
+                            Functions.OutputMessage($"Room is unavailable at the given time {_time} on {dateString}");
+                            return false;
+                        }
+                        //checks ps availability 
+                        else if (!checkPS(cmd, ref _otherID, ref dateString, ref _time, meetingID))
                         {
                             //PS is available
+                            Functions.OutputMessage($"Personal Supervisor unavailable at the given time {_time} on {dateString}");
                             return false;
                         }
                         break;
@@ -954,15 +990,23 @@ namespace Coursework
                         if (!checkPS(cmd, ref _loginID, ref dateString, ref _time, meetingID))
                         {
                             //PS is unavailable
+                            Functions.OutputMessage($"You are unavailable at the given time {_time} on {dateString}");
+                            return false;
+                        }
+                        //Checks room availability
+                        else if (!checkRoom(cmd, ref _location, ref dateString, ref _time, meetingID))
+                        {
+                            Functions.OutputMessage($"Room is unavailable at the given time {_time} on {dateString}");
                             return false;
                         }
                         //Checks other users availability in student/stmeeting
-                        if (!checkST(cmd, ref _otherID, ref dateString, ref _time, meetingID))
+                        else if (!checkST(cmd, ref _otherID, ref dateString, ref _time, meetingID))
                         {
                             //ST is unavailable
                             if (!checkStudent(cmd, ref _otherID, ref dateString, ref _time, meetingID))
                             {
                                 //Student is unavailable
+                                Functions.OutputMessage($"Other party is unavailable at the given time {_time} on {dateString}");
                                 return false;
                             }
                         }
@@ -973,17 +1017,26 @@ namespace Coursework
                         if (!checkPS(cmd, ref _otherID, ref dateString, ref _time, meetingID))
                         {
                             //PS is unavailable
+                            Functions.OutputMessage($"Personal Supervisor is unavailable at the given time {_time} on {dateString}");
+                            return false;
+                        }
+                        //Checks room availability
+                        else if (!checkRoom(cmd, ref _location, ref dateString, ref _time, meetingID))
+                        {
+                            Functions.OutputMessage($"Room is unavailable at the given time {_time} on {dateString}");
                             return false;
                         }
                         //Checks own availability
-                        if (!checkST(cmd, ref _loginID, ref dateString, ref _time, meetingID))
+                        else if (!checkST(cmd, ref _loginID, ref dateString, ref _time, meetingID))
                         {
                             //ST is unavailable
+                            Functions.OutputMessage($"You are unavailable at the given time {_time} on {dateString}");
                             return false;
                         }
                         break;
                     default:
                         //Shoudln't happen
+                        Functions.OutputMessage("Error encountered, please try again");
                         return false;
                 }
                 return true;

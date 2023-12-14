@@ -149,11 +149,6 @@ namespace Coursework
                 }
             }
         }
-        private void StudentDetails(ref SqliteCommand cmd)
-        {
-
-            return;
-        }
         private string GetDetails()
         {
             string output = string.Empty;

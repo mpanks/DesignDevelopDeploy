@@ -9,18 +9,10 @@ namespace Coursework
 {
     class Hashing
     {
-        //TODO Encapsulate hashing class before final commit
         private string _salt;
         private string _hash;
         public Hashing() { }
-        private string GenerateSalt()
-        {
-            var rng = RandomNumberGenerator.Create();
-            var buffer = new byte[10];
-            rng.GetBytes(buffer);
 
-            return _salt = Convert.ToBase64String(buffer);
-        }
         private string GenerateHash(string password, string salt)
         {
             using (SHA256 mySha256 = SHA256.Create())

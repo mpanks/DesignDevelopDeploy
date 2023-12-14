@@ -61,9 +61,6 @@ namespace Coursework
                         STHomeScreen sTHomeScreen = new STHomeScreen(_loginID);
                         sTHomeScreen.Select();
                         break;
-                    case 4:
-                        //TODO Divert to admin homescreen?
-                        break;
                     default:
                         Functions.OutputMessage("Error, please try again");
                         break;
